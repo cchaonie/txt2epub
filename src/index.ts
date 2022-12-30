@@ -2,12 +2,16 @@ import fs from 'fs/promises';
 import path from 'path';
 import _ from 'lodash';
 
+const [, , sourceName, targetName] = process.argv;
+
+console.log(sourceName, targetName);
+
 const cwd = process.cwd();
 
-const filePath = './inputs/金鳞岂是池中物.txt';
+const filePath = `./inputs/${sourceName}.txt`;
 const pageTemplatePath = './templates/page.html';
 
-const fileOutPath = './outputs/epubs/金鳞';
+const fileOutPath = `./outputs/epubs/${targetName}`;
 
 const titlePattern = /^第\d*章/;
 
@@ -50,14 +54,18 @@ async function parseContent() {
 
   if (currentContent.length) {
     const pageContent = pageTemplate
-        .replace('{{title}}', currentTitle)
-        .replace(
-          '{{content}}',
-          `<h2>${currentTitle}</h2>` + currentContent.join('\n')
-        );
+      .replace('{{title}}', currentTitle)
+      .replace(
+        '{{content}}',
+        `<h2>${currentTitle}</h2>` + currentContent.join('\n')
+      );
 
-      pages.push(pageContent);
+    pages.push(pageContent);
   }
+}
+
+async function createFolder() {
+  await fs.mkdir(path.resolve(cwd, fileOutPath), { recursive: true });
 }
 
 async function generatePage() {
@@ -74,6 +82,8 @@ async function writeToDisk(content: string, index: number) {
   await fileHandle.writeFile(content);
   await fileHandle.close();
 }
+
+await createFolder();
 
 await parseContent();
 
