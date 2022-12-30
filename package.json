@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "generate": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" ts-node src/index"
+    "g": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" ts-node src/index"
   },
   "keywords": [],
   "author": "",

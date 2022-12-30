@@ -4,28 +4,77 @@ import _ from 'lodash';
 
 const cwd = process.cwd();
 
-const filePath = './inputs/epubs/text';
+const filePath = './inputs/金鳞岂是池中物.txt';
+const pageTemplatePath = './templates/page.html';
 
-const fileOutPath = './outputs/epubs/万族之劫/text';
+const fileOutPath = './outputs/epubs/金鳞';
 
-const files = await fs.readdir(path.resolve(cwd, filePath));
+const titlePattern = /^第\d*章/;
 
-_.each(files, async (file, i) => {
-  const data = await fs.readFile(path.resolve(cwd, filePath, file), {
-    encoding: 'utf-8',
+const fileContent = await fs.readFile(path.resolve(cwd, filePath), {
+  encoding: 'utf-8',
+});
+
+const pageTemplate = await fs.readFile(path.resolve(cwd, pageTemplatePath), {
+  encoding: 'utf-8',
+});
+
+const fileContentInLines = fileContent.split('\n').filter(l => !!l);
+
+// console.log(fileContentInLines);
+
+let currentTitle = '请输入标题';
+let currentContent = [];
+
+const pages = [];
+
+async function parseContent() {
+  _.each(fileContentInLines, line => {
+    if (titlePattern.test(line)) {
+      // now we should generate a new page
+      const pageContent = pageTemplate
+        .replace('{{title}}', currentTitle)
+        .replace(
+          '{{content}}',
+          `<h2>${currentTitle}</h2>` + currentContent.join('\n')
+        );
+
+      pages.push(pageContent);
+
+      currentContent = [];
+      currentTitle = line;
+    } else {
+      currentContent.push(`<p>${line}</p>`);
+    }
   });
 
-  const titleReg = /<title>(.*)<\/title>/;
+  if (currentContent.length) {
+    const pageContent = pageTemplate
+        .replace('{{title}}', currentTitle)
+        .replace(
+          '{{content}}',
+          `<h2>${currentTitle}</h2>` + currentContent.join('\n')
+        );
 
-  const result = titleReg.exec(data);
-
-  if (result) {
-    const title = result[1];
-
-    const content = data.replace(/(<body .*>)/, (_, p1) => {
-      return `${p1}<h1 class="chapter_title">${title}</h1>`;
-    });
-    const fileHandle = await fs.open(path.resolve(cwd, fileOutPath, file), 'w');
-    fileHandle.writeFile(content);
+      pages.push(pageContent);
   }
-});
+}
+
+async function generatePage() {
+  for (let i = 0; i < pages.length; i += 1) {
+    await writeToDisk(pages[i], i);
+  }
+}
+
+async function writeToDisk(content: string, index: number) {
+  const fileHandle = await fs.open(
+    path.resolve(cwd, fileOutPath, `page_${index}.html`),
+    'w'
+  );
+  await fileHandle.writeFile(content);
+  await fileHandle.close();
+}
+
+await parseContent();
+
+await generatePage();
