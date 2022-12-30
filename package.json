@@ -1,6 +1,6 @@
 {
-  "name": "ebooker",
-  "version": "1.0.0",
+  "name": "txt2epub",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -8,14 +8,17 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "g": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" ts-node src/index"
   },
-  "keywords": [],
+  "keywords": [
+    "txt",
+    "epub"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "cross-env": "^7.0.3",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "@types/lodash": "^4.14.185",
     "@types/node": "^18.7.18",
     "ts-node": "^10.9.1",

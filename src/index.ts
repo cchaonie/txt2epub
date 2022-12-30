@@ -25,12 +25,10 @@ const pageTemplate = await fs.readFile(path.resolve(cwd, pageTemplatePath), {
 
 const fileContentInLines = fileContent.split('\n').filter(l => !!l);
 
-// console.log(fileContentInLines);
-
 let currentTitle = '请输入标题';
-let currentContent = [];
+let currentContent: string[] = [];
 
-const pages = [];
+const pages: string[] = [];
 
 async function parseContent() {
   _.each(fileContentInLines, line => {
