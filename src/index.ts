@@ -2,16 +2,14 @@ import fs from 'fs/promises';
 import path from 'path';
 import _ from 'lodash';
 
-const [, , sourceName, targetName] = process.argv;
-
-console.log(sourceName, targetName);
+const [, , sourceName, targetName, targetFolder] = process.argv;
 
 const cwd = process.cwd();
 
-const filePath = `./inputs/${sourceName}.txt`;
+const filePath = `${sourceName}.txt`;
 const pageTemplatePath = './templates/page.html';
 
-const fileOutPath = `./outputs/epubs/${targetName}`;
+const fileOutPath = `${targetFolder}/${targetName}`;
 
 const titlePattern = /^第\d*章/;
 
