@@ -36,9 +36,12 @@ async function parseContent() {
   let currentTitle = targetName; // the initial title should be the name of the book
   let currentContent: string[] = [];
 
-  const fileContentInLines = fileContent.split(/\r?\n/).filter(l => !!l);
+  const fileContentInLines = fileContent
+    .split(/\r?\n/)
+    .filter(l => !!l)
+    .map(l => l.trim());
 
-  console.log(fileContentInLines)
+  console.log(fileContentInLines);
   _.each(fileContentInLines, line => {
     if (sectionTitlePattern.test(line) || pageTitlePattern.test(line)) {
       // now we see a section or a new page, we should create a new page if `currentContent` is not empty
@@ -49,7 +52,7 @@ async function parseContent() {
             '{{content}}',
             currentTitle === targetName
               ? `<h1>${currentTitle}</h1>`
-              : `<h2>${currentTitle}</h2>` + currentContent
+              : `<h2>${currentTitle}</h2>` + currentContent.join('')
           );
 
         pages.push(pageContent);
@@ -58,7 +61,6 @@ async function parseContent() {
       }
 
       if (sectionTitlePattern.test(line)) {
-        // console.log('section: ', line);
         // now we should generate a new section
         const sectionContent = sectionTemplate
           .replace('{{title}}', line)
@@ -66,7 +68,6 @@ async function parseContent() {
 
         pages.push(sectionContent);
       } else {
-        // console.log('title: ', line);
         currentTitle = line;
       }
     } else {
@@ -78,7 +79,10 @@ async function parseContent() {
   if (currentContent.length) {
     const pageContent = pageTemplate
       .replace('{{title}}', currentTitle)
-      .replace('{{content}}', `<h2>${currentTitle}</h2>`);
+      .replace(
+        '{{content}}',
+        `<h2>${currentTitle}</h2>` + currentContent.join('')
+      );
 
     pages.push(pageContent);
   }
