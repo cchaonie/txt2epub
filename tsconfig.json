@@ -6,8 +6,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "lib",
-    "target": "ES2017",
-    "module": "esnext"
+    "module": "CommonJS",
   },
   "include": [
     "src/**/*",

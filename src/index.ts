@@ -15,24 +15,24 @@ const sectionTemplatePath = './templates/section.html';
 const pageTitlePattern = /^第[\d|一|二|三|四|五|六|七|八|九|十|百]*章/;
 const sectionTitlePattern = /^第[\d|一|二|三|四|五|六|七|八|九|十|百]*[卷|集]/;
 
-const fileContent = await fs.readFile(path.resolve(cwd, filePath), {
-  encoding: 'utf-8',
-});
-
-const pageTemplate = await fs.readFile(path.resolve(cwd, pageTemplatePath), {
-  encoding: 'utf-8',
-});
-
-const sectionTemplate = await fs.readFile(
-  path.resolve(cwd, sectionTemplatePath),
-  {
-    encoding: 'utf-8',
-  }
-);
-
 const pages: string[] = [];
 
 async function parseContent() {
+  const fileContent = await fs.readFile(path.resolve(cwd, filePath), {
+    encoding: 'utf-8',
+  });
+
+  const pageTemplate = await fs.readFile(path.resolve(cwd, pageTemplatePath), {
+    encoding: 'utf-8',
+  });
+
+  const sectionTemplate = await fs.readFile(
+    path.resolve(cwd, sectionTemplatePath),
+    {
+      encoding: 'utf-8',
+    }
+  );
+
   let currentTitle = targetName; // the initial title should be the name of the book
   let currentContent: string[] = [];
 
@@ -107,8 +107,12 @@ async function writeToDisk(content: string, index: number) {
   await fileHandle.close();
 }
 
-await createFolder();
+async function run() {
+  await createFolder();
 
-await parseContent();
+  await parseContent();
 
-await generatePage();
+  await generatePage();
+}
+
+export default run;
