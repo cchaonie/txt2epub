@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "description": "A simple tool to convert txt file to epub htmls",
   "main": "lib/index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "build": "tsc",
     "g": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" ts-node src/index"
