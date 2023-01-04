@@ -5,7 +5,6 @@ import _ from 'lodash';
 const [, , sourceName, targetName, targetFolder] = process.argv;
 
 const cwd = process.cwd();
-
 const moduleDirPath = path.dirname(__filename);
 
 const filePath = `${sourceName}.txt`;
@@ -17,8 +16,8 @@ const sectionTemplatePath = path.resolve(
   '../templates/section.html'
 );
 
-const pageTitlePattern = /^第[\d|一|二|三|四|五|六|七|八|九|十|百]*章/;
 const sectionTitlePattern = /^第[\d|一|二|三|四|五|六|七|八|九|十|百]*[卷|集]/;
+const pageTitlePattern = /^第[\d|一|二|三|四|五|六|七|八|九|十|百]*章/;
 
 const pages: string[] = [];
 
@@ -43,7 +42,6 @@ async function parseContent() {
     .filter(l => !!l)
     .map(l => l.trim());
 
-  console.log(fileContentInLines);
   _.each(fileContentInLines, line => {
     if (sectionTitlePattern.test(line) || pageTitlePattern.test(line)) {
       // now we see a section or a new page, we should create a new page if `currentContent` is not empty
@@ -110,10 +108,10 @@ async function writeToDisk(content: string, index: number) {
 }
 
 async function run() {
-  await createFolder();
-
   await parseContent();
-
+  console.log('Parse content successfully');
+  await createFolder();
+  console.log('Create target directory successfully');
   await generatePage();
 }
 
