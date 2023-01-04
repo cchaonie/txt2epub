@@ -6,11 +6,16 @@ const [, , sourceName, targetName, targetFolder] = process.argv;
 
 const cwd = process.cwd();
 
+const moduleDirPath = path.dirname(__filename);
+
 const filePath = `${sourceName}.txt`;
 const fileOutPath = `${targetFolder}/${targetName}`;
 
-const pageTemplatePath = './templates/page.html';
-const sectionTemplatePath = './templates/section.html';
+const pageTemplatePath = path.resolve(moduleDirPath, '../templates/page.html');
+const sectionTemplatePath = path.resolve(
+  moduleDirPath,
+  '../templates/section.html'
+);
 
 const pageTitlePattern = /^第[\d|一|二|三|四|五|六|七|八|九|十|百]*章/;
 const sectionTitlePattern = /^第[\d|一|二|三|四|五|六|七|八|九|十|百]*[卷|集]/;
@@ -22,16 +27,13 @@ async function parseContent() {
     encoding: 'utf-8',
   });
 
-  const pageTemplate = await fs.readFile(path.resolve(cwd, pageTemplatePath), {
+  const pageTemplate = await fs.readFile(pageTemplatePath, {
     encoding: 'utf-8',
   });
 
-  const sectionTemplate = await fs.readFile(
-    path.resolve(cwd, sectionTemplatePath),
-    {
-      encoding: 'utf-8',
-    }
-  );
+  const sectionTemplate = await fs.readFile(sectionTemplatePath, {
+    encoding: 'utf-8',
+  });
 
   let currentTitle = targetName; // the initial title should be the name of the book
   let currentContent: string[] = [];
