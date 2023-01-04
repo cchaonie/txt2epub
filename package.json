@@ -7,7 +7,7 @@
   "type": "commonjs",
   "scripts": {
     "build": "tsc",
-    "g": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" ts-node src/index"
+    "g": "npm run build && node ./bin/index"
   },
   "keywords": [
     "txt",
