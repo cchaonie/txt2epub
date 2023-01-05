@@ -5,6 +5,7 @@
   "description": "A simple tool to convert txt file to epub html files",
   "main": "lib/index.js",
   "type": "commonjs",
+  "repository": "https://github.com/cchaonie/txt2epub.git",
   "scripts": {
     "build": "tsc",
     "g": "npm run build && node ./bin/index"
