@@ -7,6 +7,7 @@ A simple tool to convert txt file to epub html files
 ### Install it globally
 
 Install this package globally, so you can use it anywhere.
+
 `npm i txt2epub -g`
 
 ### Options
