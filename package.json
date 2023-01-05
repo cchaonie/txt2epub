@@ -14,6 +14,7 @@
     "txt",
     "epub"
   ],
+  "packageManager": "pnpm@7.12.2",
   "author": "",
   "license": "MIT",
   "dependencies": {
