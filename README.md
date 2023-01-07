@@ -4,6 +4,8 @@ A simple command line tool to convert txt file to epub html files
 
 ## Usage
 
+Currently, this tool only supports the Chinese text transformation.
+
 ### Install it globally
 
 Install this package globally, so you can use it anywhere.
