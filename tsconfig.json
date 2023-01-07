@@ -6,7 +6,6 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "lib",
-    "module": "CommonJS",
   },
   "include": [
     "src/**/*",

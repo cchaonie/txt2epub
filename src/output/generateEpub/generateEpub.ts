@@ -2,7 +2,7 @@ import Epub from 'epub-gen';
 
 import { GenerateEpubOptions } from './types';
 
-export default function generateEpub({
+export default async function generateEpub({
   title,
   author,
   content,
@@ -20,8 +20,11 @@ export default function generateEpub({
     publisher: '',
     verbose: true,
   };
-  new Epub(options).promise.then(
-    () => console.log('Ebook Generated Successfully!'),
-    err => console.error('Failed to generate Ebook because of ', err)
-  );
+
+  try {
+    await new Epub(options).promise;
+    console.log('Ebook Generated Successfully!');
+  } catch (error) {
+    console.error('Failed to generate Ebook because of ', error);
+  }
 }
