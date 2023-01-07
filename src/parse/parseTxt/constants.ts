@@ -3,3 +3,5 @@ export enum PageType {
   Chapter,
   Other,
 }
+
+export const PROLOGUE = '前言';

@@ -1,4 +1,4 @@
-import { PageType } from './constants';
+import { PageType, PROLOGUE } from './constants';
 import { Page } from './types';
 
 export default (source: string) => {
@@ -19,7 +19,7 @@ export default (source: string) => {
       // now we see a section or a new page, we should create a new page if `pageData` is not empty
       if (pageData.length) {
         pages.push({
-          title: currentPageTitle,
+          title: currentPageTitle || PROLOGUE,
           data: pageData,
           type: currentPageTitle ? PageType.Chapter : PageType.Other,
         });
