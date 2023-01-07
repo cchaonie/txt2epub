@@ -15,10 +15,10 @@
     "epub"
   ],
   "packageManager": "pnpm@7.12.2",
-  "author": "",
+  "author": "cchaonie",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.17.21",
+    "epub-gen": "^0.1.0",
     "tslib": "^2.4.1"
   },
   "devDependencies": {
