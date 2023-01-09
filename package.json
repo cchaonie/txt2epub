@@ -53,6 +53,7 @@
       "eslint",
       "prettier --write",
       "jest --bail --findRelatedTests --passWithNoTests"
-    ]
+    ],
+    "*.{json,md,yaml,yml}": "prettier --write"
   }
 }
