@@ -1,1 +1,1 @@
-export { default as transformToHtml } from './transformToHtml';
+export { default as transformToHtml } from "./transformToHtml";

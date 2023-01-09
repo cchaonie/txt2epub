@@ -1,1 +1,1 @@
-export { default as fileContent } from './fileContent';
+export { default as fileContent } from "./fileContent";
