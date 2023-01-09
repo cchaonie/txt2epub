@@ -42,6 +42,6 @@
     "typescript": "^4.8.3"
   },
   "lint-staged": {
-    "src/*": "pnpm lint && pnpm format && pnpm test"
+    "*.{ts, js}": "pnpm lint && pnpm format && pnpm test"
   }
 }
