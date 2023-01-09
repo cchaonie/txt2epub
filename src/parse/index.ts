@@ -1,3 +1,3 @@
-export type { Page } from './parseTxt/types';
+export type { Page } from "./parseTxt/types";
 
-export { default as parseTxt } from './parseTxt';
+export { default as parseTxt } from "./parseTxt";
