@@ -1,6 +1,6 @@
 # txt2epub
 
-A simple command line tool to convert txt file to epub html files
+A simple command line tool to convert txt file to epub html files. Currently, only `utf-8` is supported, if your txt file is encoded with other format, for example, `ANSI` in Windows system. You should transform it to `utf-8` first.
 
 ## Usage
 
