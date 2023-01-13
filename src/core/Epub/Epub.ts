@@ -1,25 +1,19 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 /* eslint-disable prefer-const */
-const indexOf = [].indexOf;
 import path from 'path';
 import fs from 'fs';
 import { isEmpty, isString, isArray, extend, each, map } from 'underscore';
-import usLug from 'uslug';
 import { load, Element } from 'cheerio';
 import { encodeXML } from 'entities';
 import mime from 'mime';
 import archiver from 'archiver';
 import rimraf from 'rimraf';
 import fsExtra from 'fs-extra';
-import { remove } from 'diacritics';
+import { nanoid } from 'nanoid';
+
 import { EpubOptions, Options } from './types';
 import { renderTemplate } from './helpers';
-
-const uuid = () =>
-  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-  });
+import { ALLOWED_ATTRIBUTES, DEFAULT_OPTIONS } from './constants';
 
 export default class Epub {
   options: EpubOptions;
@@ -28,32 +22,18 @@ export default class Epub {
 
   constructor(options: Options) {
     this.options = extend(
-      {
-        description: options.title,
-        publisher: 'anonymous',
-        author: ['anonymous'],
-        tocTitle: 'Table Of Contents',
-        appendChapterTitles: true,
-        date: new Date().toISOString(),
-        lang: 'en',
-        fonts: [],
-        customOpfTemplatePath: null,
-        customNcxTocTemplatePath: null,
-        customHtmlTocTemplatePath: null,
-        version: 3,
-      },
+      { description: options.title },
+      DEFAULT_OPTIONS,
       options
     );
 
     if (!this.options.output) {
       console.error(new Error('No Output Path'));
-      Promise.reject(new Error('No output path'));
       return;
     }
 
     if (!options.title || !options.content) {
       console.error(new Error('Title and content are both required'));
-      Promise.reject(new Error('Title and content are both required'));
       return;
     }
 
@@ -62,42 +42,28 @@ export default class Epub {
     if (isEmpty(this.options.author)) {
       this.options.author = ['anonymous'];
     }
+
     if (!this.options.tempDir) {
       this.options.tempDir = path.resolve(__dirname, '../tempDir/');
     }
-    this.id = uuid();
+
+    this.id = nanoid();
     this.uuid = path.resolve(this.options.tempDir, this.id);
     this.options.uuid = this.uuid;
     this.options.id = this.id;
     this.options.images = [];
     this.options.content = map(this.options.content, (content, index) => {
-      if (!content.filename) {
-        const titleSlug = usLug(remove(content.title || 'no title'));
-        content.href = `${index}_${titleSlug}.xhtml`;
-        content.filePath = path.resolve(
-          this.uuid,
-          `./OEBPS/${index}_${titleSlug}.xhtml`
-        );
-      } else {
-        content.href = content.filename.match(/\.xhtml$/)
-          ? content.filename
-          : `${content.filename}.xhtml`;
-        if (content.filename.match(/\.xhtml$/)) {
-          content.filePath = path.resolve(
-            this.uuid,
-            `./OEBPS/${content.filename}`
-          );
-        } else {
-          content.filePath = path.resolve(
-            this.uuid,
-            `./OEBPS/${content.filename}.xhtml`
-          );
-        }
-      }
+      const title = content.title;
+      content.href = `${index}_${title}.xhtml`;
+      content.filePath = path.resolve(
+        this.uuid,
+        `./OEBPS/${index}_${title}.xhtml`
+      );
+
       content.id = `item_${index}`;
       content.dir = path.dirname(content.filePath);
-      content.excludeFromToc || (content.excludeFromToc = false);
-      content.beforeToc || (content.beforeToc = false);
+      content.excludeFromToc = content.excludeFromToc || false;
+      content.beforeToc = content.beforeToc || false;
 
       content.author =
         content.author && isString(content.author)
@@ -106,200 +72,65 @@ export default class Epub {
           ? []
           : content.author;
 
-      const allowedAttributes = [
-        'content',
-        'alt',
-        'id',
-        'title',
-        'src',
-        'href',
-        'about',
-        'accesskey',
-        'aria-activedescendant',
-        'aria-atomic',
-        'aria-autocomplete',
-        'aria-busy',
-        'aria-checked',
-        'aria-controls',
-        'aria-describedat',
-        'aria-describedby',
-        'aria-disabled',
-        'aria-dropeffect',
-        'aria-expanded',
-        'aria-flowto',
-        'aria-grabbed',
-        'aria-haspopup',
-        'aria-hidden',
-        'aria-invalid',
-        'aria-label',
-        'aria-labelledby',
-        'aria-level',
-        'aria-live',
-        'aria-multiline',
-        'aria-multiselectable',
-        'aria-orientation',
-        'aria-owns',
-        'aria-posinset',
-        'aria-pressed',
-        'aria-readonly',
-        'aria-relevant',
-        'aria-required',
-        'aria-selected',
-        'aria-setsize',
-        'aria-sort',
-        'aria-valuemax',
-        'aria-valuemin',
-        'aria-valuenow',
-        'aria-valuetext',
-        'class',
-        'content',
-        'contenteditable',
-        'contextmenu',
-        'datatype',
-        'dir',
-        'draggable',
-        'dropzone',
-        'hidden',
-        'hreflang',
-        'id',
-        'inlist',
-        'itemid',
-        'itemref',
-        'itemscope',
-        'itemtype',
-        'lang',
-        'media',
-        'ns1:type',
-        'ns2:alphabet',
-        'ns2:ph',
-        'onabort',
-        'onblur',
-        'oncanplay',
-        'oncanplaythrough',
-        'onchange',
-        'onclick',
-        'oncontextmenu',
-        'ondblclick',
-        'ondrag',
-        'ondragend',
-        'ondragenter',
-        'ondragleave',
-        'ondragover',
-        'ondragstart',
-        'ondrop',
-        'ondurationchange',
-        'onemptied',
-        'onended',
-        'onerror',
-        'onfocus',
-        'oninput',
-        'oninvalid',
-        'onkeydown',
-        'onkeypress',
-        'onkeyup',
-        'onload',
-        'onloadeddata',
-        'onloadedmetadata',
-        'onloadstart',
-        'onmousedown',
-        'onmousemove',
-        'onmouseout',
-        'onmouseover',
-        'onmouseup',
-        'onmousewheel',
-        'onpause',
-        'onplay',
-        'onplaying',
-        'onprogress',
-        'onratechange',
-        'onreadystatechange',
-        'onreset',
-        'onscroll',
-        'onseeked',
-        'onseeking',
-        'onselect',
-        'onshow',
-        'onstalled',
-        'onsubmit',
-        'onsuspend',
-        'ontimeupdate',
-        'onvolumechange',
-        'onwaiting',
-        'prefix',
-        'property',
-        'rel',
-        'resource',
-        'rev',
-        'role',
-        'spellcheck',
-        'style',
-        'tabindex',
-        'target',
-        'title',
-        'type',
-        'typeof',
-        'vocab',
-        'xml:base',
-        'xml:lang',
-        'xml:space',
-        'colspan',
-        'rowspan',
-        'epub:type',
-        'epub:prefix',
-      ];
       let $ = load(content.data, {
         lowerCaseTags: true,
         recognizeSelfClosing: true,
       });
-      // Only body innerHTML is allowed
+
       if ($('body').length) {
         $ = load($('body').html(), {
           lowerCaseTags: true,
           recognizeSelfClosing: true,
         });
       }
-      $($('*').get().reverse()).each(function (elemIndex, elem) {
-        let ref, that;
-        const attrs = (elem as unknown as Element).attribs;
-        that = this;
-        if ((ref = that.name) === 'img' || ref === 'br' || ref === 'hr') {
-          if (that.name === 'img') {
-            $(that).attr('alt', $(that).attr('alt') || 'image-placeholder');
+
+      $($('*').get().reverse()).each((_, elem) => {
+        const currentElement = elem as unknown as Element;
+        const attrs = currentElement.attribs;
+        const ref = currentElement.name;
+        if (ref === 'img' || ref === 'br' || ref === 'hr') {
+          if (ref === 'img') {
+            $(currentElement).attr(
+              'alt',
+              $(currentElement).attr('alt') || 'image-placeholder'
+            );
           }
         }
         for (const k in attrs) {
-          if (indexOf.call(allowedAttributes, k) >= 0) {
+          if (ALLOWED_ATTRIBUTES.indexOf(k) >= 0) {
             if (k === 'type') {
-              if (that.name !== 'script') {
-                $(that).removeAttr(k);
+              if (currentElement.name !== 'script') {
+                $(currentElement).removeAttr(k);
               }
             }
           } else {
-            $(that).removeAttr(k);
+            $(currentElement).removeAttr(k);
           }
         }
       });
 
-      $('img').each((index, elem) => {
-        let dir, extension, id, image, mediaType;
+      $('img').each((_, elem) => {
+        let extension = '';
+        let id = '';
         const url = $(elem).attr('src');
-        if (
-          (image = this.options.images.find((element) => {
-            return element.url === url;
-          }))
-        ) {
+        const image = this.options.images.find((element) => {
+          return element.url === url;
+        });
+        if (image) {
           id = image.id;
           extension = image.extension;
         } else {
-          id = uuid();
-          mediaType = mime.getType(url.replace(/\?.*/, ''));
+          id = nanoid();
+          const mediaType = mime.getType(url.replace(/\?.*/, ''));
           extension = mime.getExtension(mediaType);
-          dir = content.dir;
+          const dir = content.dir;
           this.options.images.push({ id, url, dir, mediaType, extension });
         }
         $(elem).attr('src', `images/${id}.${extension}`);
       });
+
       content.data = $.xml();
+
       return content;
     });
 
@@ -311,54 +142,29 @@ export default class Epub {
     }
   }
 
-  render() {
-    if (this.options.verbose) {
-      console.log('Generating Template Files.....');
+  async render() {
+    try {
+      await this.generateTempFile();
+      await this.makeCover();
+      await this.genEpub();
+      console.log('Done.');
+    } catch (error) {
+      console.error('Something wrong happened: ', error);
+      throw error;
     }
-    return this.generateTempFile().then(
-      () => {
-        if (this.options.verbose) {
-          console.log('Making Cover...');
-        }
-        return this.makeCover().then(
-          () => {
-            if (this.options.verbose) {
-              console.log('Generating Epub Files...');
-            }
-            return this.genEpub().then(
-              () => {
-                if (this.options.verbose) {
-                  console.log('About to finish...');
-                }
-                if (this.options.verbose) {
-                  return console.log('Done.');
-                }
-              },
-              (err) => {
-                console.error(err);
-                return err;
-              }
-            );
-          },
-          (err) => {
-            console.error(err);
-            return err;
-          }
-        );
-      },
-      (err) => {
-        console.error(err);
-        return err;
-      }
-    );
   }
 
   generateTempFile() {
+    if (this.options.verbose) {
+      console.log('Generating Template Files.....');
+    }
     return new Promise((resolve, reject) => {
       if (!fs.existsSync(this.options.tempDir)) {
         fs.mkdirSync(this.options.tempDir);
       }
+
       fs.mkdirSync(this.uuid);
+
       fs.mkdirSync(path.resolve(this.uuid, './OEBPS'));
       if (!this.options.css) {
         this.options.css = fs.readFileSync(
@@ -370,6 +176,7 @@ export default class Epub {
         path.resolve(this.uuid, './OEBPS/style.css'),
         this.options.css
       );
+
       if (this.options.fonts.length) {
         fs.mkdirSync(path.resolve(this.uuid, './OEBPS/fonts'));
         this.options.fonts = map(this.options.fonts, function (font) {
@@ -384,28 +191,27 @@ export default class Epub {
           return filename;
         });
       }
-      each(this.options.content, (content) => {
+
+      each(this.options.content, (pageContent) => {
+        const { title, author, url, data: pageData, filePath } = pageContent;
         let data = `${
           this.options.docHeader
         }\n  <head>\n  <meta charset="UTF-8" />\n  <title>${encodeXML(
-          content.title || ''
+          title || ''
         )}</title>\n  <link rel="stylesheet" type="text/css" href="style.css" />\n  </head>\n<body>`;
         data +=
-          content.title && this.options.appendChapterTitles
-            ? `<h1>${encodeXML(content.title)}</h1>`
+          title && this.options.appendChapterTitles
+            ? `<h1>${encodeXML(title)}</h1>`
             : '';
-        data +=
-          content.title && content.author && content.author.length
-            ? `<p class='epub-author'>${encodeXML(
-                content.author.join(', ')
-              )}</p>`
-            : '';
-        data +=
-          content.title && content.url
-            ? `<p class='epub-link'><a href='${content.url}'>${content.url}</a></p>`
-            : '';
-        data += `${content.data}</body></html>`;
-        return fs.writeFileSync(content.filePath, data);
+        data += author?.length
+          ? `<p class='epub-author'>${encodeXML(author.join(', '))}</p>`
+          : '';
+        data += url
+          ? `<p class='epub-link'><a href='${url}'>${url}</a></p>`
+          : '';
+        data += `${pageData}</body></html>`;
+
+        return fs.writeFileSync(filePath, data);
       });
       // write meta-inf/container.xml
       fs.mkdirSync(this.uuid + '/META-INF');
@@ -455,6 +261,9 @@ export default class Epub {
   }
 
   makeCover() {
+    if (this.options.verbose) {
+      console.log('Making Cover...');
+    }
     return new Promise((resolve, reject) => {
       if (this.options.cover) {
         const destPath = path.resolve(
@@ -480,6 +289,9 @@ export default class Epub {
   }
 
   genEpub() {
+    if (this.options.verbose) {
+      console.log('Generating Epub Files...');
+    }
     return new Promise((resolve, reject) => {
       const cwd = this.uuid;
       const archive = archiver('zip', {
