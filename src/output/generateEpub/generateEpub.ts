@@ -1,6 +1,6 @@
-import Epub from 'epub-gen';
+import { Epub } from "../../core";
 
-import { GenerateEpubOptions } from './types';
+import { GenerateEpubOptions } from "./types";
 
 export default async function generateEpub({
   title,
@@ -10,21 +10,21 @@ export default async function generateEpub({
 }: GenerateEpubOptions) {
   const options = {
     title,
-    lang: 'zh',
-    cover: '',
+    lang: "zh",
+    cover: "",
     tocTitle: title,
     appendChapterTitles: false,
     author,
     content,
     output: `${outputDir}/${title}.epub`,
-    publisher: '',
+    publisher: "",
     verbose: true,
   };
 
   try {
     await new Epub(options).promise;
-    console.log('Ebook Generated Successfully!');
+    console.log("Ebook Generated Successfully!");
   } catch (error) {
-    console.error('Failed to generate Ebook because of ', error);
+    console.error("Failed to generate Ebook because of ", error);
   }
 }
