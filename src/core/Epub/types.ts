@@ -15,6 +15,7 @@ export interface Options {
   version?: number;
 }
 export type EpubOptions = Options & {
+  appendChapterTitles?: boolean;
   id?: string;
   uuid?: string;
   docHeader?: string;
