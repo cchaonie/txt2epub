@@ -8,6 +8,7 @@ export default (pages: Page[]): EpubPage[] =>
       case PageType.Section: {
         return {
           title,
+          type: PageType.Section,
           data: `<h1>${title}</h1>`,
         };
       }
@@ -15,8 +16,9 @@ export default (pages: Page[]): EpubPage[] =>
       default: {
         return {
           title,
+          type: PageType.Chapter,
           data: `<h2>${title}</h2>${data
-            .map(line => `<p>${line}</p>`)
+            .map((line) => `<p>${line}</p>`)
             .join('')}`,
         };
       }
