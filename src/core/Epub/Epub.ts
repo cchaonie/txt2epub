@@ -8,16 +8,12 @@ import _ from "underscore";
 import uslug from "uslug";
 import ejs from "ejs";
 import cheerio from "cheerio";
-import entities from "entities";
-import request from "superagent";
+import { encodeXML } from "entities";
 import mime from "mime";
 import archiver from "archiver";
 import rimraf from "rimraf";
 import fsextra from "fs-extra";
 import { removeDiacritics } from "diacritics";
-import superagentProxy from "superagent-proxy";
-
-superagentProxy(request);
 
 const uuid = function () {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -33,14 +29,11 @@ export default class Epub {
   uuid: any;
   promise: any;
 
-  constructor(options, output?: string) {
+  constructor(options) {
     let self;
     this.options = options;
     self = this;
     this.defer = new Q.defer();
-    if (output) {
-      this.options.output = output;
-    }
     if (!this.options.output) {
       console.error(new Error("No Output Path"));
       this.defer.reject(new Error("No output path"));
@@ -372,21 +365,6 @@ export default class Epub {
               $(that).removeAttr(k);
             }
           }
-          if (self.options.version === 2) {
-            if (
-              !((ref1 = that.name), indexOf.call(allowedXhtml11Tags, ref1) >= 0)
-            ) {
-              if (self.options.verbose) {
-                console.log(
-                  "Warning (content[" + index + "]):",
-                  that.name,
-                  "tag isn't allowed on EPUB 2/XHTML 1.1 DTD."
-                );
-              }
-              child = $(that).html();
-              return $(that).replaceWith($("<div>" + child + "</div>"));
-            }
-          }
         });
         $("img").each(function (index, elem) {
           let dir, extension, id, image, mediaType, url;
@@ -430,32 +408,22 @@ export default class Epub {
     return this.generateTempFile().then(
       function () {
         if (self.options.verbose) {
-          console.log("Downloading Images...");
+          console.log("Making Cover...");
         }
-        return self.downloadAllImage().fin(
+        return self.makeCover().then(
           function () {
             if (self.options.verbose) {
-              console.log("Making Cover...");
+              console.log("Generating Epub Files...");
             }
-            return self.makeCover().then(
-              function () {
+            return self.genEpub().then(
+              function (result) {
                 if (self.options.verbose) {
-                  console.log("Generating Epub Files...");
+                  console.log("About to finish...");
                 }
-                return self.genEpub().then(
-                  function (result) {
-                    if (self.options.verbose) {
-                      console.log("About to finish...");
-                    }
-                    self.defer.resolve(result);
-                    if (self.options.verbose) {
-                      return console.log("Done.");
-                    }
-                  },
-                  function (err) {
-                    return self.defer.reject(err);
-                  }
-                );
+                self.defer.resolve(result);
+                if (self.options.verbose) {
+                  return console.log("Done.");
+                }
               },
               function (err) {
                 return self.defer.reject(err);
@@ -512,18 +480,16 @@ export default class Epub {
       let data;
       data = `${
         self.options.docHeader
-      }\n  <head>\n  <meta charset="UTF-8" />\n  <title>${entities.encodeXML(
+      }\n  <head>\n  <meta charset="UTF-8" />\n  <title>${encodeXML(
         content.title || ""
       )}</title>\n  <link rel="stylesheet" type="text/css" href="style.css" />\n  </head>\n<body>`;
       data +=
         content.title && self.options.appendChapterTitles
-          ? `<h1>${entities.encodeXML(content.title)}</h1>`
+          ? `<h1>${encodeXML(content.title)}</h1>`
           : "";
       data +=
         content.title && content.author && content.author.length
-          ? `<p class='epub-author'>${entities.encodeXML(
-              content.author.join(", ")
-            )}</p>`
+          ? `<p class='epub-author'>${encodeXML(content.author.join(", "))}</p>`
           : "";
       data +=
         content.title && content.url
@@ -538,13 +504,6 @@ export default class Epub {
       `${this.uuid}/META-INF/container.xml`,
       '<?xml version="1.0" encoding="UTF-8" ?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>'
     );
-    if (self.options.version === 2) {
-      // write meta-inf/com.apple.ibooks.display-options.xml [from pedrosanta:xhtml#6]
-      fs.writeFileSync(
-        `${this.uuid}/META-INF/com.apple.ibooks.display-options.xml`,
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<display_options>\n  <platform name="*">\n    <option name="specified-fonts">true</option>\n  </platform>\n</display_options>'
-      );
-    }
     opfPath =
       self.options.customOpfTemplatePath ||
       path.resolve(
@@ -599,8 +558,6 @@ export default class Epub {
   makeCover() {
     let coverDefer, destPath, self, userAgent, writeStream;
     self = this;
-    userAgent =
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36";
     coverDefer = new Q.defer();
     if (this.options.cover) {
       destPath = path.resolve(
@@ -608,15 +565,8 @@ export default class Epub {
         "./OEBPS/cover." + this.options._coverExtension
       );
       writeStream = null;
-      if (this.options.cover.slice(0, 4) === "http") {
-        writeStream = request.get(this.options.cover).set({
-          "User-Agent": userAgent,
-        });
-        writeStream.pipe(fs.createWriteStream(destPath));
-      } else {
-        writeStream = fs.createReadStream(this.options.cover);
-        writeStream.pipe(fs.createWriteStream(destPath));
-      }
+      writeStream = fs.createReadStream(this.options.cover);
+      writeStream.pipe(fs.createWriteStream(destPath));
       writeStream.on("end", function () {
         if (self.options.verbose) {
           console.log("[Success] cover image downloaded successfully!");
@@ -633,85 +583,8 @@ export default class Epub {
     return coverDefer.promise;
   }
 
-  downloadImage(options) {
-    //{id, url, mediaType}
-    let auxpath, downloadImageDefer, filename, requestAction, self, userAgent;
-    self = this;
-    userAgent =
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36";
-    if (!options.url && typeof options !== "string") {
-      return false;
-    }
-    downloadImageDefer = new Q.defer();
-    filename = path.resolve(
-      self.uuid,
-      "./OEBPS/images/" + options.id + "." + options.extension
-    );
-    if (options.url.indexOf("file://") === 0) {
-      auxpath = options.url.substr(7);
-      fsextra.copySync(auxpath, filename);
-      return downloadImageDefer.resolve(options);
-    } else {
-      if (options.url.indexOf("http") === 0) {
-        requestAction = request.get(options.url).set({
-          "User-Agent": userAgent,
-        });
-        requestAction.pipe(fs.createWriteStream(filename));
-      } else {
-        requestAction = fs.createReadStream(
-          path.resolve(options.dir, options.url)
-        );
-        requestAction.pipe(fs.createWriteStream(filename));
-      }
-      requestAction.on("error", function (err) {
-        if (self.options.verbose) {
-          console.error(
-            "[Download Error]",
-            "Error while downloading",
-            options.url,
-            err
-          );
-        }
-        fs.unlinkSync(filename);
-        return downloadImageDefer.reject(err);
-      });
-      requestAction.on("end", function () {
-        if (self.options.verbose) {
-          console.log("[Download Success]", options.url);
-        }
-        return downloadImageDefer.resolve(options);
-      });
-      return downloadImageDefer.promise;
-    }
-  }
-
-  downloadAllImage() {
-    let deferArray, imgDefer, self;
-    self = this;
-    imgDefer = new Q.defer();
-    if (!self.options.images.length) {
-      imgDefer.resolve();
-    } else {
-      fs.mkdirSync(path.resolve(this.uuid, "./OEBPS/images"));
-      deferArray = [];
-      _.each(self.options.images, function (image) {
-        return deferArray.push(self.downloadImage(image));
-      });
-      Q.all(deferArray).fin(function () {
-        return imgDefer.resolve();
-      });
-    }
-    return imgDefer.promise;
-  }
-
   genEpub() {
     let archive, cwd, genDefer, output, self;
-    // Thanks to Paul Bradley
-    // http://www.bradleymedia.org/gzip-markdown-epub/ (404 as of 28.07.2016)
-    // Web Archive URL:
-    // http://web.archive.org/web/20150521053611/http://www.bradleymedia.org/gzip-markdown-epub
-    // or Gist:
-    // https://gist.github.com/cyrilis/8d48eef37fbc108869ac32eb3ef97bca
     genDefer = new Q.defer();
     self = this;
     cwd = this.uuid;
