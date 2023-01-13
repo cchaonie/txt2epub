@@ -15,13 +15,13 @@
     </docAuthor>
     <navMap>
         <% var _index = 0; %>
-        <% content.forEach(function(content, index){ %>
-            <% if(!content.excludeFromToc && content.beforeToc){ %>
-                <navPoint id="content_<%= index %>_<%= content.id %>" playOrder="<%= _index++ %>" class="chapter">
+        <% content.forEach(function(data, index){ %>
+            <% if(!data.excludeFromToc && data.beforeToc){ %>
+                <navPoint id="content_<%= index %>_<%= data.id %>" playOrder="<%= _index++ %>" class="chapter">
                     <navLabel>
-                        <text><%= (1+index) + ". " + (content.title || "Chapter " + (1+index))%></text>
+                        <text><%= (1+index) + ". " + (data.title || "Chapter " + (1+index))%></text>
                     </navLabel>
-                    <content src="<%= content.href %>"/>
+                    <content src="<%= data.href %>"/>
                 </navPoint>
             <% } %>
         <% }) %>
@@ -33,13 +33,13 @@
             <content src="toc.xhtml"/>
         </navPoint>
 
-        <% content.forEach(function(content, index){ %>
-            <% if(!content.excludeFromToc && !content.beforeToc){ %>
-                <navPoint id="content_<%= index %>_<%= content.id %>" playOrder="<%= _index++ %>" class="chapter">
+        <% content.forEach(function(data, index){ %>
+            <% if(!data.excludeFromToc && !data.beforeToc){ %>
+                <navPoint id="content_<%= index %>_<%= data.id %>" playOrder="<%= _index++ %>" class="chapter">
                     <navLabel>
-                        <text><%= (1+index) + ". " + (content.title || "Chapter " + (1+index))%></text>
+                        <text><%= (1+index) + ". " + (data.title || "Chapter " + (1+index))%></text>
                     </navLabel>
-                    <content src="<%= content.href %>"/>
+                    <content src="<%= data.href %>"/>
                 </navPoint>
             <% } %>
         <% }) %>

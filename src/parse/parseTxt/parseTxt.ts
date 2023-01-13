@@ -1,6 +1,6 @@
-import { PageType, PROLOGUE } from "./constants";
-import { generateTitleFromContent } from "./helpers";
-import { Page } from "./types";
+import { PageType } from './constants';
+import { generateTitleFromContent } from './helpers';
+import { Page } from './types';
 
 export default (source: string) => {
   const sectionTitlePattern =
@@ -14,7 +14,7 @@ export default (source: string) => {
 
   const pages: Page[] = [];
   let pageData: string[] = [];
-  let currentPageTitle = "";
+  let currentPageTitle = '';
 
   fileContentInLines.forEach((line) => {
     if (sectionTitlePattern.test(line) || pageTitlePattern.test(line)) {
