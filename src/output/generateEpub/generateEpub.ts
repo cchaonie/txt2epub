@@ -14,7 +14,7 @@ export default async function generateEpub({
     cover: '',
     tocTitle: title,
     appendChapterTitles: false,
-    author: [author],
+    author: author ? [author] : undefined,
     content,
     output: `${outputDir}/${title}.epub`,
     publisher: '',
@@ -24,6 +24,7 @@ export default async function generateEpub({
   try {
     const epub = new Epub(options);
     await epub.render();
+
     console.log('Ebook Generated Successfully!');
   } catch (error) {
     console.error('Failed to generate Ebook because of ', error);

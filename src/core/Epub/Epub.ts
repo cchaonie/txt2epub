@@ -7,7 +7,7 @@ import Q from 'q';
 import { isEmpty, isString, isArray, extend, each, map } from 'underscore';
 import usLug from 'uslug';
 import ejs from 'ejs';
-import { load } from 'cheerio';
+import { load, Element } from 'cheerio';
 import { encodeXML } from 'entities';
 import mime from 'mime';
 import archiver from 'archiver';
@@ -28,16 +28,6 @@ export default class Epub {
   uuid: string;
 
   constructor(options: Options) {
-    if (!this.options.output) {
-      console.error(new Error('No Output Path'));
-      Promise.reject(new Error('No output path'));
-      return;
-    }
-    if (!options.title || !options.content) {
-      console.error(new Error('Title and content are both required'));
-      Promise.reject(new Error('Title and content are both required'));
-      return;
-    }
     this.options = extend(
       {
         description: options.title,
@@ -55,6 +45,18 @@ export default class Epub {
       },
       options
     );
+
+    if (!this.options.output) {
+      console.error(new Error('No Output Path'));
+      Promise.reject(new Error('No output path'));
+      return;
+    }
+
+    if (!options.title || !options.content) {
+      console.error(new Error('Title and content are both required'));
+      Promise.reject(new Error('Title and content are both required'));
+      return;
+    }
 
     this.options.docHeader = `<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="${this.options.lang}">`;
 
@@ -259,7 +261,7 @@ export default class Epub {
       }
       $($('*').get().reverse()).each(function (elemIndex, elem) {
         let ref, that;
-        const attrs = elem.attribs;
+        const attrs = (elem as unknown as Element).attribs;
         that = this;
         if ((ref = that.name) === 'img' || ref === 'br' || ref === 'hr') {
           if (that.name === 'img') {
@@ -383,7 +385,7 @@ export default class Epub {
           return filename;
         });
       }
-      each(this.options.content, function (content) {
+      each(this.options.content, (content) => {
         let data = `${
           this.options.docHeader
         }\n  <head>\n  <meta charset="UTF-8" />\n  <title>${encodeXML(

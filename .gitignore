@@ -19,3 +19,7 @@ sketch
 
 # End of https://www.toptal.com/developers/gitignore/api/react
 dist
+
+tempDir
+
+lib
