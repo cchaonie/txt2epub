@@ -5,14 +5,14 @@ import path from 'path';
 import fs from 'fs';
 import Q from 'q';
 import { isEmpty, isString, isArray, extend, each, map } from 'underscore';
-import uslug from 'uslug';
+import usLug from 'uslug';
 import ejs from 'ejs';
 import { load } from 'cheerio';
 import { encodeXML } from 'entities';
 import mime from 'mime';
 import archiver from 'archiver';
 import rimraf from 'rimraf';
-import fsextra from 'fs-extra';
+import fsExtra from 'fs-extra';
 import { remove } from 'diacritics';
 import { EpubOptions, Options } from './types';
 
@@ -70,9 +70,8 @@ export default class Epub {
     this.options.id = this.id;
     this.options.images = [];
     this.options.content = map(this.options.content, (content, index) => {
-      let $, titleSlug;
       if (!content.filename) {
-        titleSlug = uslug(remove(content.title || 'no title'));
+        const titleSlug = usLug(remove(content.title || 'no title'));
         content.href = `${index}_${titleSlug}.xhtml`;
         content.filePath = path.resolve(
           this.uuid,
@@ -247,7 +246,7 @@ export default class Epub {
         'epub:type',
         'epub:prefix',
       ];
-      $ = load(content.data, {
+      let $ = load(content.data, {
         lowerCaseTags: true,
         recognizeSelfClosing: true,
       });
@@ -259,15 +258,15 @@ export default class Epub {
         });
       }
       $($('*').get().reverse()).each(function (elemIndex, elem) {
-        let attrs, k, ref, that;
-        attrs = elem.attribs;
+        let ref, that;
+        const attrs = elem.attribs;
         that = this;
         if ((ref = that.name) === 'img' || ref === 'br' || ref === 'hr') {
           if (that.name === 'img') {
             $(that).attr('alt', $(that).attr('alt') || 'image-placeholder');
           }
         }
-        for (k in attrs) {
+        for (const k in attrs) {
           if (indexOf.call(allowedAttributes, k) >= 0) {
             if (k === 'type') {
               if (that.name !== 'script') {
@@ -279,9 +278,10 @@ export default class Epub {
           }
         }
       });
+
       $('img').each((index, elem) => {
-        let dir, extension, id, image, mediaType, url;
-        url = $(elem).attr('src');
+        let dir, extension, id, image, mediaType;
+        const url = $(elem).attr('src');
         if (
           (image = this.options.images.find((element) => {
             return element.url === url;
@@ -296,11 +296,12 @@ export default class Epub {
           dir = content.dir;
           this.options.images.push({ id, url, dir, mediaType, extension });
         }
-        return $(elem).attr('src', `images/${id}.${extension}`);
+        $(elem).attr('src', `images/${id}.${extension}`);
       });
       content.data = $.xml();
       return content;
     });
+
     if (this.options.cover) {
       this.options._coverMediaType = mime.getType(this.options.cover);
       this.options._coverExtension = mime.getExtension(
@@ -353,16 +354,17 @@ export default class Epub {
 
   generateTempFile() {
     return new Promise((resolve, reject) => {
-      let base, htmlTocPath, ncxTocPath, opfPath;
       if (!fs.existsSync(this.options.tempDir)) {
         fs.mkdirSync(this.options.tempDir);
       }
       fs.mkdirSync(this.uuid);
       fs.mkdirSync(path.resolve(this.uuid, './OEBPS'));
-      (base = this.options).css ||
-        (base.css = fs.readFileSync(
-          path.resolve(__dirname, '../templates/template.css')
-        ));
+      if (!this.options.css) {
+        this.options.css = fs.readFileSync(
+          path.resolve(__dirname, '../templates/template.css'),
+          { encoding: 'utf-8' }
+        );
+      }
       fs.writeFileSync(
         path.resolve(this.uuid, './OEBPS/style.css'),
         this.options.css
@@ -370,12 +372,11 @@ export default class Epub {
       if (this.options.fonts.length) {
         fs.mkdirSync(path.resolve(this.uuid, './OEBPS/fonts'));
         this.options.fonts = map(this.options.fonts, function (font) {
-          let filename;
           if (!fs.existsSync(font)) {
             reject(new Error('Custom font not found at ' + font + '.'));
           }
-          filename = path.basename(font);
-          fsextra.copySync(
+          const filename = path.basename(font);
+          fsExtra.copySync(
             font,
             path.resolve(this.uuid, './OEBPS/fonts/' + filename)
           );
@@ -411,7 +412,7 @@ export default class Epub {
         `${this.uuid}/META-INF/container.xml`,
         '<?xml version="1.0" encoding="UTF-8" ?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>'
       );
-      opfPath =
+      const opfPath =
         this.options.customOpfTemplatePath ||
         path.resolve(
           __dirname,
@@ -420,13 +421,13 @@ export default class Epub {
       if (!fs.existsSync(opfPath)) {
         reject(new Error('Custom file to OPF template not found.'));
       }
-      ncxTocPath =
+      const ncxTocPath =
         this.options.customNcxTocTemplatePath ||
         path.resolve(__dirname, '../templates/toc.ncx.ejs');
       if (!fs.existsSync(ncxTocPath)) {
         reject(new Error('Custom file the NCX toc template not found.'));
       }
-      htmlTocPath =
+      const htmlTocPath =
         this.options.customHtmlTocTemplatePath ||
         path.resolve(
           __dirname,
