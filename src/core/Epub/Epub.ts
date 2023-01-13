@@ -13,7 +13,7 @@ import mime from "mime";
 import archiver from "archiver";
 import rimraf from "rimraf";
 import fsextra from "fs-extra";
-import { removeDiacritics } from "diacritics";
+import { remove } from "diacritics";
 
 const uuid = function () {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -83,7 +83,7 @@ export default class Epub {
       function (content, index) {
         let $, titleSlug;
         if (!content.filename) {
-          titleSlug = uslug(removeDiacritics(content.title || "no title"));
+          titleSlug = uslug(remove(content.title || "no title"));
           content.href = `${index}_${titleSlug}.xhtml`;
           content.filePath = path.resolve(
             self.uuid,
