@@ -6,9 +6,9 @@ specifiers:
   '@rollup/plugin-json': ^6.0.0
   '@rollup/plugin-node-resolve': ^15.0.1
   '@rollup/plugin-typescript': ^11.0.0
+  '@types/ejs': ^3.1.1
   '@types/jest': ^29.0.0
   '@types/node': ^18.7.18
-  '@types/q': ^1.5.5
   '@types/underscore': ^1.11.4
   '@typescript-eslint/eslint-plugin': ^5.48.0
   '@typescript-eslint/parser': ^5.48.0
@@ -27,7 +27,6 @@ specifiers:
   lint-staged: ^13.1.0
   mime: ^3.0.0
   prettier: 2.8.1
-  q: ^1.5.1
   rimraf: ^3.0.2
   rollup: ^3.10.0
   rollup-plugin-re: ^1.0.7
@@ -44,9 +43,9 @@ devDependencies:
   '@rollup/plugin-json': 6.0.0_rollup@3.10.0
   '@rollup/plugin-node-resolve': 15.0.1_rollup@3.10.0
   '@rollup/plugin-typescript': 11.0.0_flwci6ff2doy5snqrq2vechkly
+  '@types/ejs': 3.1.1
   '@types/jest': 29.2.5
   '@types/node': 18.7.18
-  '@types/q': 1.5.5
   '@types/underscore': 1.11.4
   '@typescript-eslint/eslint-plugin': 5.48.0_3pbt7ydm7bwozvllq3xvnbepre
   '@typescript-eslint/parser': 5.48.0_2dzgwy5zqpbqnlebe4vtikzq4i
@@ -65,7 +64,6 @@ devDependencies:
   lint-staged: 13.1.0
   mime: 3.0.0
   prettier: 2.8.1
-  q: 1.5.1
   rimraf: 3.0.2
   rollup: 3.10.0
   rollup-plugin-re: 1.0.7
@@ -1156,6 +1154,13 @@ packages:
       '@babel/types': 7.20.7
     dev: true
 
+  /@types/ejs/3.1.1:
+    resolution:
+      {
+        integrity: sha512-RQul5wEfY7BjWm0sYY86cmUN/pcXWGyVxWX93DFFJvcrxax5zKlieLwA3T77xJGwNcZW0YW6CYG70p1m8xPFmA==,
+      }
+    dev: true
+
   /@types/estree/1.0.0:
     resolution:
       {
@@ -1225,13 +1230,6 @@ packages:
     resolution:
       {
         integrity: sha512-KufADq8uQqo1pYKVIYzfKbJfBAc0sOeXqGbFaSpv8MRmC/zXgowNZmFcbngndGk922QDmOASEXUZCaY48gs4cg==,
-      }
-    dev: true
-
-  /@types/q/1.5.5:
-    resolution:
-      {
-        integrity: sha512-L28j2FcJfSZOnL1WBjDYp2vUHCeIFlyYI/53EwD/rKUBQ7MtUUfbQWiyKJGpcnv4/WgrhWsFKrcPstcAt/J0tQ==,
       }
     dev: true
 
@@ -4567,14 +4565,6 @@ packages:
         integrity: sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==,
       }
     engines: { node: '>=6' }
-    dev: true
-
-  /q/1.5.1:
-    resolution:
-      {
-        integrity: sha512-kV/CThkXo6xyFEZUugw/+pIOywXcDbFYgSct5cT3gqlbkBE1SJdwy6UQoZvodiWF/ckQLZyDE/Bu1M6gVu5lVw==,
-      }
-    engines: { node: '>=0.6.0', teleport: '>=0.2.0' }
     dev: true
 
   /queue-microtask/1.2.3:

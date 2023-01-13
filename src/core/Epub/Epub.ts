@@ -3,10 +3,8 @@
 const indexOf = [].indexOf;
 import path from 'path';
 import fs from 'fs';
-import Q from 'q';
 import { isEmpty, isString, isArray, extend, each, map } from 'underscore';
 import usLug from 'uslug';
-import ejs from 'ejs';
 import { load, Element } from 'cheerio';
 import { encodeXML } from 'entities';
 import mime from 'mime';
@@ -15,6 +13,7 @@ import rimraf from 'rimraf';
 import fsExtra from 'fs-extra';
 import { remove } from 'diacritics';
 import { EpubOptions, Options } from './types';
+import { renderTemplate } from './helpers';
 
 const uuid = () =>
   'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -416,10 +415,7 @@ export default class Epub {
       );
       const opfPath =
         this.options.customOpfTemplatePath ||
-        path.resolve(
-          __dirname,
-          `../templates/epub${this.options.version}/content.opf.ejs`
-        );
+        path.resolve(__dirname, `../templates/epub3/content.opf.ejs`);
       if (!fs.existsSync(opfPath)) {
         reject(new Error('Custom file to OPF template not found.'));
       }
@@ -431,18 +427,16 @@ export default class Epub {
       }
       const htmlTocPath =
         this.options.customHtmlTocTemplatePath ||
-        path.resolve(
-          __dirname,
-          `../templates/epub${this.options.version}/toc.xhtml.ejs`
-        );
+        path.resolve(__dirname, `../templates/epub3/toc.xhtml.ejs`);
       if (!fs.existsSync(htmlTocPath)) {
         reject(new Error('Custom file to HTML toc template not found.'));
       }
-      Q.all([
-        Q.nfcall(ejs.renderFile, opfPath, this.options),
-        Q.nfcall(ejs.renderFile, ncxTocPath, this.options),
-        Q.nfcall(ejs.renderFile, htmlTocPath, this.options),
-      ]).spread(
+
+      Promise.all([
+        renderTemplate(opfPath, this.options),
+        renderTemplate(ncxTocPath, this.options),
+        renderTemplate(htmlTocPath, this.options),
+      ]).then(
         ([data1, data2, data3]) => {
           fs.writeFileSync(
             path.resolve(this.uuid, './OEBPS/content.opf'),
@@ -504,11 +498,11 @@ export default class Epub {
       archive.directory(cwd + '/META-INF', 'META-INF');
       archive.directory(cwd + '/OEBPS', 'OEBPS');
       archive.pipe(output);
-      archive.on('end', function () {
+      archive.on('end', () => {
         if (this.options.verbose) {
           console.log('Done zipping, clearing temp dir...');
         }
-        return rimraf(cwd, function (err) {
+        return rimraf(cwd, (err) => {
           if (err) {
             return reject(err);
           } else {
@@ -516,7 +510,7 @@ export default class Epub {
           }
         });
       });
-      archive.on('error', function (err) {
+      archive.on('error', (err) => {
         return reject(err);
       });
       archive.finalize();
