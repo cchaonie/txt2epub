@@ -2,9 +2,9 @@ import { EpubPage } from '../../output';
 
 export type PageContent = Omit<EpubPage, 'author'> & {
   filePath: string;
-  filename?: string;
   href: string;
   id: string;
+  beforeToc?: boolean;
 };
 
 export interface Options {
