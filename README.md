@@ -26,4 +26,8 @@ To transform a txt file into an epub file, you need to specify 3 parameters:
 4. coverPath. This is the path to your cover image, for example, `./cover.jpg`.
 5. author. Optional. The author of the book.
 
-So, when you run `txt2epub hello.txt ./output HELLO ./cover.jpg Jerry`, you will see all your html files in `./output/HELLO.epub`.
+So, when you run
+
+`txt2epub hello.txt ./output HELLO ./cover.jpg Jerry`
+
+You will see all your epub file in `./output/HELLO.epub`.
