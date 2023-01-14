@@ -18,12 +18,16 @@ Install this package globally, so you can use it anywhere.
 
 ### Options
 
-To transform a txt file into an epub file, you need to specify 3 parameters:
+To transform a txt file into an epub file, you need to specify 5 parameters:
 
-1. sourceFile. The path to your txt file, for example, `./input/hello.txt`.
-2. outputDir. The directory you want to save your output epub file, for example, `./output`.
-3. outputName. This will be used as the _title_ of your epub file.
-4. coverPath. This is the path to your cover image, for example, `./cover.jpg`.
-5. author. Optional. The author of the book.
+1. sourceFile. **Required**. The path to your txt file, for example, `hello.txt`.
+2. outputDir. **Required**. The directory you want to save your output epub file, for example, `./output`.
+3. outputName. **Required**. This will be used as the _title_ of your epub file, for example, `HELLO`.
+4. coverPath. **Optional**. This is the path to your cover image, for example, `./cover.jpg`.
+5. author. **Optional**. The author of the book, for example, `Jerry`.
 
-So, when you run `txt2epub hello.txt ./output HELLO ./cover.jpg Jerry`, you will see all your html files in `./output/HELLO.epub`.
+So, when you run
+
+`txt2epub hello.txt ./output HELLO ./cover.jpg Jerry`
+
+You will see all your html files in `./output/HELLO.epub`.

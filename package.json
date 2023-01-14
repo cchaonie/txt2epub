@@ -1,7 +1,7 @@
 {
   "name": "txt2epub",
   "bin": "./bin/index.js",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A simple tool to convert txt file to epub html files",
   "main": "lib/index.js",
   "repository": "https://github.com/cchaonie/txt2epub.git",
