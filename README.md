@@ -30,4 +30,4 @@ So, when you run
 
 `txt2epub hello.txt ./output HELLO ./cover.jpg Jerry`
 
-You will see all your html files in `./output/HELLO.epub`.
+You will see your epub file in `./output/HELLO.epub`.
