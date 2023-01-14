@@ -1,9 +1,18 @@
+import { EpubPage } from '../../output';
+
+export type PageContent = Omit<EpubPage, 'author'> & {
+  url?: string;
+  filePath: string;
+  filename?: string;
+  author?: string[];
+};
+
 export interface Options {
   output: string;
   title: string;
   lang?: string;
   author?: string[];
-  content: any[];
+  content: EpubPage[];
   images?: any[];
   cover?: string;
   fonts?: string[];
@@ -14,7 +23,8 @@ export interface Options {
   customHtmlTocTemplatePath?: string;
   version?: number;
 }
-export type EpubOptions = Options & {
+export type EpubOptions = Omit<Options, 'content'> & {
+  content: PageContent[];
   appendChapterTitles?: boolean;
   id?: string;
   uuid?: string;

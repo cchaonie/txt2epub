@@ -2,13 +2,10 @@ import { PageType } from '../../parse/parseTxt/constants';
 import { OutputOptions } from '../types';
 
 export interface EpubPage {
-  title?: string;
-  author?: string;
+  title: string;
   data: string;
-  excludeFromToc?: boolean;
-  beforeToc?: boolean;
-  filename?: string;
   type: PageType;
+  author?: string;
 }
 
 export type GenerateEpubOptions = Omit<OutputOptions, 'content'> & {

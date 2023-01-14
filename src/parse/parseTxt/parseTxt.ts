@@ -4,7 +4,7 @@ import { Page } from './types';
 
 export default (source: string) => {
   const sectionTitlePattern =
-    /^第[\d|一|二|三|四|五|六|七|八|九|十|百]*[卷|集]/;
+    /^第[\d|一|二|三|四|五|六|七|八|九|十|百]*[卷|集|部]/;
   const pageTitlePattern = /^第[\d|一|二|三|四|五|六|七|八|九|十|百]*章/;
 
   const fileContentInLines = source
