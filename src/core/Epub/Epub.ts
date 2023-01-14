@@ -12,7 +12,7 @@ import fsExtra from 'fs-extra';
 import { nanoid } from 'nanoid';
 
 import { EpubOptions, Options } from './types';
-import { renderTemplate } from './helpers';
+import { getTableOfContent, renderTemplate } from './helpers';
 import { ALLOWED_ATTRIBUTES, DEFAULT_OPTIONS } from './constants';
 
 export default class Epub {
@@ -20,11 +20,11 @@ export default class Epub {
   id: string;
   uuid: string;
 
-  constructor(options: Options) {
+  constructor(customOptions: Options) {
     this.options = extend(
-      { description: options.title },
+      { description: customOptions.title },
       DEFAULT_OPTIONS,
-      options
+      customOptions
     );
 
     if (!this.options.output) {
@@ -32,7 +32,7 @@ export default class Epub {
       return;
     }
 
-    if (!options.title || !options.content) {
+    if (!customOptions.title || !customOptions.content) {
       console.error(new Error('Title and content are both required'));
       return;
     }
@@ -52,87 +52,86 @@ export default class Epub {
     this.options.uuid = this.uuid;
     this.options.id = this.id;
     this.options.images = [];
-    this.options.content = map(this.options.content, (content, index) => {
-      const title = content.title;
-      content.href = `${index}_${title}.xhtml`;
-      content.filePath = path.resolve(
-        this.uuid,
-        `./OEBPS/${index}_${title}.xhtml`
-      );
+    this.options.content = map(
+      customOptions.content,
+      ({ title, data, author, type }, index) => {
+        const href = `${index}_${title}.xhtml`;
+        const filePath = path.resolve(
+          this.uuid,
+          `./OEBPS/${index}_${title}.xhtml`
+        );
 
-      content.id = `item_${index}`;
-      content.dir = path.dirname(content.filePath);
-      content.excludeFromToc = content.excludeFromToc || false;
-      content.beforeToc = content.beforeToc || false;
+        const id = `item_${index}`;
+        const dir = path.dirname(filePath);
 
-      content.author =
-        content.author && isString(content.author)
-          ? [content.author]
-          : !content.author || !isArray(content.author)
-          ? []
-          : content.author;
-
-      let $ = load(content.data, {
-        lowerCaseTags: true,
-        recognizeSelfClosing: true,
-      });
-
-      if ($('body').length) {
-        $ = load($('body').html(), {
+        let $ = load(data, {
           lowerCaseTags: true,
           recognizeSelfClosing: true,
         });
-      }
 
-      $($('*').get().reverse()).each((_, elem) => {
-        const currentElement = elem as unknown as Element;
-        const attrs = currentElement.attribs;
-        const ref = currentElement.name;
-        if (ref === 'img' || ref === 'br' || ref === 'hr') {
-          if (ref === 'img') {
-            $(currentElement).attr(
-              'alt',
-              $(currentElement).attr('alt') || 'image-placeholder'
-            );
-          }
+        if ($('body').length) {
+          $ = load($('body').html(), {
+            lowerCaseTags: true,
+            recognizeSelfClosing: true,
+          });
         }
-        for (const k in attrs) {
-          if (ALLOWED_ATTRIBUTES.indexOf(k) >= 0) {
-            if (k === 'type') {
-              if (currentElement.name !== 'script') {
-                $(currentElement).removeAttr(k);
-              }
+
+        $($('*').get().reverse()).each((_, elem) => {
+          const currentElement = elem as unknown as Element;
+          const attrs = currentElement.attribs;
+          const ref = currentElement.name;
+          if (ref === 'img' || ref === 'br' || ref === 'hr') {
+            if (ref === 'img') {
+              $(currentElement).attr(
+                'alt',
+                $(currentElement).attr('alt') || 'image-placeholder'
+              );
             }
-          } else {
-            $(currentElement).removeAttr(k);
           }
-        }
-      });
-
-      $('img').each((_, elem) => {
-        let extension = '';
-        let id = '';
-        const url = $(elem).attr('src');
-        const image = this.options.images.find((element) => {
-          return element.url === url;
+          for (const k in attrs) {
+            if (ALLOWED_ATTRIBUTES.indexOf(k) >= 0) {
+              if (k === 'type') {
+                if (currentElement.name !== 'script') {
+                  $(currentElement).removeAttr(k);
+                }
+              }
+            } else {
+              $(currentElement).removeAttr(k);
+            }
+          }
         });
-        if (image) {
-          id = image.id;
-          extension = image.extension;
-        } else {
-          id = nanoid();
-          const mediaType = mime.getType(url.replace(/\?.*/, ''));
-          extension = mime.getExtension(mediaType);
-          const dir = content.dir;
-          this.options.images.push({ id, url, dir, mediaType, extension });
-        }
-        $(elem).attr('src', `images/${id}.${extension}`);
-      });
 
-      content.data = $.xml();
+        $('img').each((_, elem) => {
+          let extension = '';
+          let id = '';
+          const url = $(elem).attr('src');
+          const image = this.options.images.find((element) => {
+            return element.url === url;
+          });
+          if (image) {
+            id = image.id;
+            extension = image.extension;
+          } else {
+            id = nanoid();
+            const mediaType = mime.getType(url.replace(/\?.*/, ''));
+            extension = mime.getExtension(mediaType);
+            this.options.images.push({ id, url, dir, mediaType, extension });
+          }
+          $(elem).attr('src', `images/${id}.${extension}`);
+        });
 
-      return content;
-    });
+        return {
+          id,
+          title,
+          href,
+          author: author ? [author] : undefined,
+          data: $.xml(),
+          dir,
+          type,
+          filePath,
+        };
+      }
+    );
 
     if (this.options.cover) {
       this.options._coverMediaType = mime.getType(this.options.cover);
@@ -219,18 +218,21 @@ export default class Epub {
         `${this.uuid}/META-INF/container.xml`,
         '<?xml version="1.0" encoding="UTF-8" ?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>'
       );
+
       const opfPath =
         this.options.customOpfTemplatePath ||
         path.resolve(__dirname, `../templates/epub3/content.opf.ejs`);
       if (!fs.existsSync(opfPath)) {
         reject(new Error('Custom file to OPF template not found.'));
       }
+
       const ncxTocPath =
         this.options.customNcxTocTemplatePath ||
         path.resolve(__dirname, '../templates/toc.ncx.ejs');
       if (!fs.existsSync(ncxTocPath)) {
         reject(new Error('Custom file the NCX toc template not found.'));
       }
+
       const htmlTocPath =
         this.options.customHtmlTocTemplatePath ||
         path.resolve(__dirname, `../templates/epub3/toc.xhtml.ejs`);
@@ -238,10 +240,12 @@ export default class Epub {
         reject(new Error('Custom file to HTML toc template not found.'));
       }
 
+      const tableOfContents = getTableOfContent(this.options);
+
       Promise.all([
         renderTemplate(opfPath, this.options),
-        renderTemplate(ncxTocPath, this.options),
-        renderTemplate(htmlTocPath, this.options),
+        renderTemplate(ncxTocPath, tableOfContents),
+        renderTemplate(htmlTocPath, tableOfContents),
       ]).then(
         ([data1, data2, data3]) => {
           fs.writeFileSync(
@@ -314,7 +318,7 @@ export default class Epub {
         if (this.options.verbose) {
           console.log('Done zipping, clearing temp dir...');
         }
-        return rimraf(cwd, (err) => {
+        return rimraf(cwd, { preserveRoot: false }, (err) => {
           if (err) {
             return reject(err);
           } else {

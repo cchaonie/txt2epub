@@ -15,17 +15,6 @@
     </docAuthor>
     <navMap>
         <% var _index = 0; %>
-        <% content.forEach(function(data, index){ %>
-            <% if(!data.excludeFromToc && data.beforeToc){ %>
-                <navPoint id="content_<%= index %>_<%= data.id %>" playOrder="<%= _index++ %>" class="chapter">
-                    <navLabel>
-                        <text><%= (1+index) + ". " + (data.title || "Chapter " + (1+index))%></text>
-                    </navLabel>
-                    <content src="<%= data.href %>"/>
-                </navPoint>
-            <% } %>
-        <% }) %>
-
         <navPoint id="toc" playOrder="<%= _index++ %>" class="chapter">
             <navLabel>
                 <text><%= tocTitle %></text>
@@ -33,15 +22,23 @@
             <content src="toc.xhtml"/>
         </navPoint>
 
-        <% content.forEach(function(data, index){ %>
-            <% if(!data.excludeFromToc && !data.beforeToc){ %>
-                <navPoint id="content_<%= index %>_<%= data.id %>" playOrder="<%= _index++ %>" class="chapter">
-                    <navLabel>
-                        <text><%= (1+index) + ". " + (data.title || "Chapter " + (1+index))%></text>
-                    </navLabel>
-                    <content src="<%= data.href %>"/>
-                </navPoint>
-            <% } %>
+        <% items.forEach(function(data, index){ %>
+            <navPoint id="content_<%= index %>_<%= data.id %>" playOrder="<%= _index++ %>" class="chapter">
+                <navLabel>
+                    <text><%= (1+index) + ". " + data.title %></text>
+                </navLabel>
+                <content src="<%= data.href %>"/>
+                <% if (data.children) {%>
+                    <% data.children.forEach(function(item, index){ %>
+                        <navPoint id="content_<%= data.title %>_<%= index %>_<%= item.id %>" playOrder="<%= _index++ %>" class="chapter">
+                            <navLabel>
+                                <text><%= (1+index) + ". " + item.title %></text>
+                            </navLabel>
+                            <content src="<%= item.href %>"/>
+                        </navPoint>
+                    <% }) %>
+                <% } %>
+            </navPoint>
         <% }) %>
     </navMap>
 </ncx>
