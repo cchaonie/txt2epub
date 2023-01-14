@@ -1,10 +1,10 @@
 import { EpubPage } from '../../output';
 
 export type PageContent = Omit<EpubPage, 'author'> & {
-  url?: string;
   filePath: string;
   filename?: string;
-  author?: string[];
+  href: string;
+  id: string;
 };
 
 export interface Options {
@@ -13,7 +13,6 @@ export interface Options {
   lang?: string;
   author?: string[];
   content: EpubPage[];
-  images?: any[];
   cover?: string;
   fonts?: string[];
   css?: string;
