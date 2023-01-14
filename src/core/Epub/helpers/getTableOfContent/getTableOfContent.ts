@@ -1,15 +1,5 @@
 import { PageType } from '../../../../parse/parseTxt/constants';
-import { EpubOptions, PageContent } from '../../types';
-
-const getTocChildren = (pages: PageContent[], startIndex: number) => {
-  const result = [];
-  for (let i = startIndex + 1; i < pages.length; i += 1) {
-    const { type } = pages[i];
-    if (type === PageType.Section) break;
-    result.push(pages[i]);
-  }
-  return result.length > 0 ? result : undefined;
-};
+import { EpubOptions } from '../../types';
 
 export default ({ lang, id, title, author, content }: EpubOptions) => {
   return {
