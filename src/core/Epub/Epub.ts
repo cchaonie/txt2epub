@@ -54,7 +54,7 @@ export default class Epub {
     this.options.content = map(
       customOptions.content,
       ({ title, data, type }, index) => {
-        const href = `${index}_${title}.xhtml`;
+        const href = `./${index}_${title}.xhtml`;
         const filePath = path.resolve(
           this.uuid,
           `./OEBPS/${index}_${title}.xhtml`
@@ -82,16 +82,17 @@ export default class Epub {
         this.options._coverMediaType
       );
       const id = 'Cover';
-      const href = `${id}.xhtml`;
-      const filePath = path.resolve(this.uuid, `./OEBPS/${href}`);
+      const filename = `${id}.xhtml`;
+      const filePath = path.resolve(this.uuid, `./OEBPS/${filename}`);
 
       this.options.content.unshift({
         title: '封面',
-        data: `<div class='Cover'><img src='./cover.${this.options._coverExtension}' /></div>`,
+        data: `<div class='Cover'><img role='doc-cover'  src='./cover.${this.options._coverExtension}' /></div>`,
         filePath,
         type: PageType.Other,
-        href,
+        href: `./${filename}`,
         id,
+        beforeToc: true,
       });
     }
   }
@@ -149,13 +150,15 @@ export default class Epub {
       }
 
       each(this.options.content, (pageContent) => {
-        const { title, data: pageData, filePath } = pageContent;
+        const { title, data: pageData, filePath, id } = pageContent;
 
         let data = `${
           this.options.docHeader
         }\n  <head>\n  <meta charset="UTF-8" />\n  <title>${encodeXML(
           title || ''
-        )}</title>\n  <link rel="stylesheet" type="text/css" href="style.css" />\n  </head>\n<body>`;
+        )}</title>\n  <link rel="stylesheet" type="text/css" href="style.css" />\n  </head>\n<body ${
+          id === 'Cover' ? 'epub:type="cover"' : undefined
+        }>`;
         data += `${pageData}</body></html>`;
 
         return fs.writeFileSync(filePath, data);

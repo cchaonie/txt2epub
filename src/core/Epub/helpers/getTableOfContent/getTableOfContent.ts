@@ -7,7 +7,7 @@ export default ({ lang, id, title, author, content }: EpubOptions) => {
     id,
     title,
     author,
-    tocTitle: title,
+    tocTitle: '目录',
     items: content.reduce((a, c) => {
       let last;
       if (
