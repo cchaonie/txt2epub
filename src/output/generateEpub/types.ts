@@ -5,11 +5,11 @@ export interface EpubPage {
   title: string;
   data: string;
   type: PageType;
-  author?: string;
 }
 
 export type GenerateEpubOptions = Omit<OutputOptions, 'content'> & {
   title: string;
-  author?: string;
   content: EpubPage[];
+  author?: string;
+  coverPath?: string;
 };

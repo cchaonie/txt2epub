@@ -2,8 +2,7 @@
 /* eslint-disable prefer-const */
 import path from 'path';
 import fs from 'fs';
-import { isEmpty, isString, isArray, extend, each, map } from 'underscore';
-import { load, Element } from 'cheerio';
+import { isEmpty, extend, each, map } from 'underscore';
 import { encodeXML } from 'entities';
 import mime from 'mime';
 import archiver from 'archiver';
@@ -11,9 +10,10 @@ import rimraf from 'rimraf';
 import fsExtra from 'fs-extra';
 import { nanoid } from 'nanoid';
 
-import { EpubOptions, Options } from './types';
 import { getTableOfContent, renderTemplate } from './helpers';
-import { ALLOWED_ATTRIBUTES, DEFAULT_OPTIONS } from './constants';
+import { DEFAULT_OPTIONS } from './constants';
+import { EpubOptions, Options } from './types';
+import { PageType } from '../../parse/parseTxt/constants';
 
 export default class Epub {
   options: EpubOptions;
@@ -51,10 +51,9 @@ export default class Epub {
     this.uuid = path.resolve(this.options.tempDir, this.id);
     this.options.uuid = this.uuid;
     this.options.id = this.id;
-    this.options.images = [];
     this.options.content = map(
       customOptions.content,
-      ({ title, data, author, type }, index) => {
+      ({ title, data, type }, index) => {
         const href = `${index}_${title}.xhtml`;
         const filePath = path.resolve(
           this.uuid,
@@ -64,68 +63,12 @@ export default class Epub {
         const id = `item_${index}`;
         const dir = path.dirname(filePath);
 
-        let $ = load(data, {
-          lowerCaseTags: true,
-          recognizeSelfClosing: true,
-        });
-
-        if ($('body').length) {
-          $ = load($('body').html(), {
-            lowerCaseTags: true,
-            recognizeSelfClosing: true,
-          });
-        }
-
-        $($('*').get().reverse()).each((_, elem) => {
-          const currentElement = elem as unknown as Element;
-          const attrs = currentElement.attribs;
-          const ref = currentElement.name;
-          if (ref === 'img' || ref === 'br' || ref === 'hr') {
-            if (ref === 'img') {
-              $(currentElement).attr(
-                'alt',
-                $(currentElement).attr('alt') || 'image-placeholder'
-              );
-            }
-          }
-          for (const k in attrs) {
-            if (ALLOWED_ATTRIBUTES.indexOf(k) >= 0) {
-              if (k === 'type') {
-                if (currentElement.name !== 'script') {
-                  $(currentElement).removeAttr(k);
-                }
-              }
-            } else {
-              $(currentElement).removeAttr(k);
-            }
-          }
-        });
-
-        $('img').each((_, elem) => {
-          let extension = '';
-          let id = '';
-          const url = $(elem).attr('src');
-          const image = this.options.images.find((element) => {
-            return element.url === url;
-          });
-          if (image) {
-            id = image.id;
-            extension = image.extension;
-          } else {
-            id = nanoid();
-            const mediaType = mime.getType(url.replace(/\?.*/, ''));
-            extension = mime.getExtension(mediaType);
-            this.options.images.push({ id, url, dir, mediaType, extension });
-          }
-          $(elem).attr('src', `images/${id}.${extension}`);
-        });
-
         return {
           id,
           title,
           href,
-          author: author ? [author] : undefined,
-          data: $.xml(),
+          author: customOptions.author,
+          data,
           dir,
           type,
           filePath,
@@ -138,6 +81,18 @@ export default class Epub {
       this.options._coverExtension = mime.getExtension(
         this.options._coverMediaType
       );
+      const id = 'Cover';
+      const href = `${id}.xhtml`;
+      const filePath = path.resolve(this.uuid, `./OEBPS/${href}`);
+
+      this.options.content.unshift({
+        title: '封面',
+        data: `<div class='Cover'><img src='./cover.${this.options._coverExtension}' /></div>`,
+        filePath,
+        type: PageType.Other,
+        href,
+        id,
+      });
     }
   }
 
@@ -163,14 +118,15 @@ export default class Epub {
       }
 
       fs.mkdirSync(this.uuid);
-
       fs.mkdirSync(path.resolve(this.uuid, './OEBPS'));
+
       if (!this.options.css) {
         this.options.css = fs.readFileSync(
           path.resolve(__dirname, '../templates/template.css'),
           { encoding: 'utf-8' }
         );
       }
+
       fs.writeFileSync(
         path.resolve(this.uuid, './OEBPS/style.css'),
         this.options.css
@@ -178,7 +134,8 @@ export default class Epub {
 
       if (this.options.fonts.length) {
         fs.mkdirSync(path.resolve(this.uuid, './OEBPS/fonts'));
-        this.options.fonts = map(this.options.fonts, function (font) {
+
+        this.options.fonts = map(this.options.fonts, (font) => {
           if (!fs.existsSync(font)) {
             reject(new Error('Custom font not found at ' + font + '.'));
           }
@@ -192,27 +149,18 @@ export default class Epub {
       }
 
       each(this.options.content, (pageContent) => {
-        const { title, author, url, data: pageData, filePath } = pageContent;
+        const { title, data: pageData, filePath } = pageContent;
+
         let data = `${
           this.options.docHeader
         }\n  <head>\n  <meta charset="UTF-8" />\n  <title>${encodeXML(
           title || ''
         )}</title>\n  <link rel="stylesheet" type="text/css" href="style.css" />\n  </head>\n<body>`;
-        data +=
-          title && this.options.appendChapterTitles
-            ? `<h1>${encodeXML(title)}</h1>`
-            : '';
-        data += author?.length
-          ? `<p class='epub-author'>${encodeXML(author.join(', '))}</p>`
-          : '';
-        data += url
-          ? `<p class='epub-link'><a href='${url}'>${url}</a></p>`
-          : '';
         data += `${pageData}</body></html>`;
 
         return fs.writeFileSync(filePath, data);
       });
-      // write meta-inf/container.xml
+
       fs.mkdirSync(this.uuid + '/META-INF');
       fs.writeFileSync(
         `${this.uuid}/META-INF/container.xml`,
@@ -276,13 +224,13 @@ export default class Epub {
         );
         const writeStream = fs.createReadStream(this.options.cover);
         writeStream.pipe(fs.createWriteStream(destPath));
-        writeStream.on('end', function () {
+        writeStream.on('end', () => {
           if (this.options.verbose) {
-            console.log('[Success] cover image downloaded successfully!');
+            console.log('[Success] cover image generated successfully!');
           }
           return resolve('SUCCESS');
         });
-        writeStream.on('error', function (err) {
+        writeStream.on('error', (err) => {
           console.error('Error', err);
           return reject(err);
         });

@@ -7,11 +7,12 @@ export default async function generateEpub({
   author,
   content,
   outputDir,
+  coverPath,
 }: GenerateEpubOptions) {
   const options = {
     title,
     lang: 'zh',
-    cover: '',
+    cover: coverPath,
     tocTitle: title,
     appendChapterTitles: false,
     author: author ? [author] : undefined,
