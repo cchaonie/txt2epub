@@ -100,9 +100,12 @@ export default class Epub {
   async render() {
     try {
       await this.generateTempFile();
-      await this.makeCover();
+
+      if (this.options.cover) {
+        await this.makeCover();
+      }
+
       await this.genEpub();
-      console.log('Done.');
     } catch (error) {
       console.error('Something wrong happened: ', error);
       throw error;
@@ -216,24 +219,20 @@ export default class Epub {
   makeCover() {
     console.log('Making Cover...');
     return new Promise((resolve, reject) => {
-      if (this.options.cover) {
-        const destPath = path.resolve(
-          this.uuid,
-          './OEBPS/cover.' + this.options._coverExtension
-        );
-        const writeStream = fs.createReadStream(this.options.cover);
-        writeStream.pipe(fs.createWriteStream(destPath));
-        writeStream.on('end', () => {
-          console.log('[Success] cover image generated successfully!');
-          return resolve('SUCCESS');
-        });
-        writeStream.on('error', (err) => {
-          console.error('Error', err);
-          return reject(err);
-        });
-      } else {
-        resolve('SUCCESS');
-      }
+      const destPath = path.resolve(
+        this.uuid,
+        './OEBPS/cover.' + this.options._coverExtension
+      );
+      const writeStream = fs.createReadStream(this.options.cover);
+      writeStream.pipe(fs.createWriteStream(destPath));
+      writeStream.on('end', () => {
+        console.log('[Success] cover image generated successfully!');
+        return resolve('SUCCESS');
+      });
+      writeStream.on('error', (err) => {
+        console.error('Error', err);
+        return reject(err);
+      });
     });
   }
 
@@ -257,10 +256,11 @@ export default class Epub {
       archive.pipe(output);
       archive.on('end', () => {
         console.log('Done zipping, clearing temp dir...');
-        return rimraf(cwd, { preserveRoot: false }, (err) => {
+        return rimraf(this.options.tempDir, { preserveRoot: false }, (err) => {
           if (err) {
             return reject(err);
           } else {
+            console.log('Done clearing temp dir.');
             return resolve('SUCCESS');
           }
         });
