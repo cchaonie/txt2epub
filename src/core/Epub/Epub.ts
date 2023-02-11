@@ -110,9 +110,7 @@ export default class Epub {
   }
 
   generateTempFile() {
-    if (this.options.verbose) {
-      console.log('Generating Template Files.....');
-    }
+    console.log('Generating Template Files.....');
     return new Promise((resolve, reject) => {
       if (!fs.existsSync(this.options.tempDir)) {
         fs.mkdirSync(this.options.tempDir);
@@ -216,9 +214,7 @@ export default class Epub {
   }
 
   makeCover() {
-    if (this.options.verbose) {
-      console.log('Making Cover...');
-    }
+    console.log('Making Cover...');
     return new Promise((resolve, reject) => {
       if (this.options.cover) {
         const destPath = path.resolve(
@@ -228,9 +224,7 @@ export default class Epub {
         const writeStream = fs.createReadStream(this.options.cover);
         writeStream.pipe(fs.createWriteStream(destPath));
         writeStream.on('end', () => {
-          if (this.options.verbose) {
-            console.log('[Success] cover image generated successfully!');
-          }
+          console.log('[Success] cover image generated successfully!');
           return resolve('SUCCESS');
         });
         writeStream.on('error', (err) => {
@@ -244,9 +238,7 @@ export default class Epub {
   }
 
   genEpub() {
-    if (this.options.verbose) {
-      console.log('Generating Epub Files...');
-    }
+    console.log('Generating Epub Files...');
     return new Promise((resolve, reject) => {
       const cwd = this.uuid;
       const archive = archiver('zip', {
@@ -255,9 +247,7 @@ export default class Epub {
         },
       });
       const output = fs.createWriteStream(this.options.output);
-      if (this.options.verbose) {
-        console.log('Zipping temp dir to', this.options.output);
-      }
+      console.log('Zipping temp dir to', this.options.output);
       archive.append('application/epub+zip', {
         store: true,
         name: 'mimetype',
@@ -266,9 +256,7 @@ export default class Epub {
       archive.directory(cwd + '/OEBPS', 'OEBPS');
       archive.pipe(output);
       archive.on('end', () => {
-        if (this.options.verbose) {
-          console.log('Done zipping, clearing temp dir...');
-        }
+        console.log('Done zipping, clearing temp dir...');
         return rimraf(cwd, { preserveRoot: false }, (err) => {
           if (err) {
             return reject(err);

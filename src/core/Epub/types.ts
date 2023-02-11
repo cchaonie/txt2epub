@@ -16,7 +16,6 @@ export interface Options {
   cover?: string;
   fonts?: string[];
   css?: string;
-  verbose?: boolean;
   customOpfTemplatePath?: string;
   customNcxTocTemplatePath?: string;
   customHtmlTocTemplatePath?: string;

@@ -19,7 +19,6 @@ export default async function generateEpub({
     content,
     output: `${outputDir}/${title}.epub`,
     publisher: '',
-    verbose: true,
   };
 
   try {
