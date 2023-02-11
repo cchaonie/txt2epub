@@ -25,7 +25,7 @@
     "epub"
   ],
   "packageManager": "pnpm@7.12.2",
-  "author": "cchaonie (nc_8093@163.com)",
+  "author": "cchaonie",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.8",
