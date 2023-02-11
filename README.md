@@ -2,6 +2,10 @@
 
 A simple command line tool to convert txt file to epub html files.
 
+## Background
+
+I have a friend, he loves reading ebooks, especially novels, but he does not like the `txt` format because when a `txt` ebook is put into a smart phone, it does not have a nice cover. So I create this little tool to help him to transform a `txt` file to `epub` file.
+
 ## Caution
 
 Only text in `utf-8` is supported, if your txt file is encoded with other format, for example, `ANSI` in Windows system. You should transform it to `utf-8` first.
@@ -28,6 +32,6 @@ To transform a txt file into an epub file, you need to specify 5 parameters:
 
 So, when you run
 
-`txt2epub hello.txt ./output HELLO ./cover.jpg Jerry`
+`txt2epub --sourceFile=hello.txt --outputDir=output --outputName=HELLO`
 
 You will see your epub file in `./output/HELLO.epub`.
