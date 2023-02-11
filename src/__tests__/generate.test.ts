@@ -1,5 +1,7 @@
-import generate from '..';
 import fs from 'fs/promises';
+import iconv from 'iconv-lite';
+
+import generate from '../generate';
 
 import { generateEpub } from '../output';
 import { fileContent } from '../mocks';
@@ -9,13 +11,21 @@ jest.mock('fs/promises', () => ({
   readFile: jest.fn(),
 }));
 
+jest.mock('chardet', () => ({
+  detectFile: jest.fn().mockResolvedValue('GB18030'),
+}));
+
+jest.mock('iconv-lite', () => ({
+  decode: jest.fn(),
+}));
+
 jest.mock('../output', () => ({
   generateEpub: jest.fn(),
 }));
 
 describe('generate', () => {
   it('should generate epub file', async () => {
-    (fs.readFile as jest.Mock).mockResolvedValue(fileContent);
+    (iconv.decode as jest.Mock).mockReturnValue(fileContent);
 
     const defaultOptions = {
       inputFilePath: './hello.txt',

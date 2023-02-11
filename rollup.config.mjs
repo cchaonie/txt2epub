@@ -5,15 +5,11 @@ import json from '@rollup/plugin-json';
 import replace from 'rollup-plugin-re';
 import isBuiltin from 'is-builtin-module';
 
-export default {
-  input: 'src/index.ts',
-  output: {
-    file: 'lib/index.js',
-    format: 'cjs',
-  },
+const shared = {
   plugins: [
     nodeResolve({
-      resolveOnly: module => module === 'string_decoder' || !isBuiltin(module),
+      resolveOnly: (module) =>
+        module === 'string_decoder' || !isBuiltin(module),
       preferBuiltins: false,
     }),
     replace({
@@ -35,3 +31,22 @@ export default {
     typescript(),
   ],
 };
+
+export default [
+  {
+    ...shared,
+    input: 'src/index.ts',
+    output: {
+      file: 'lib/index.js',
+      format: 'cjs',
+    },
+  },
+  {
+    ...shared,
+    input: 'src/cli.ts',
+    output: {
+      file: 'lib/cli.js',
+      format: 'cjs',
+    },
+  },
+];
