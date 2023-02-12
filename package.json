@@ -1,7 +1,7 @@
 {
   "name": "txt2epub",
   "bin": "./bin/index.js",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "A simple tool to convert txt file to epub file",
   "main": "lib/index.cjs",
   "module": "lib/index.mjs",
