@@ -23,14 +23,14 @@
 要把一个 `txt` 文件转成 `epub` 文件，你需要指定以下几个参数：
 
 1. sourceFile. **必选**。 你的 `txt` 文件所在的路径, 比如, `hello.txt`。
-2. outputDir. **必选**。 你想要把转换后的 `epub` 文件输出到哪个目录, 比如, `output`。
-3. outputName. **必选**。 你想要生成的 `epub` 文件的名称, 比如, `HELLO`。
+2. targetFolder. **必选**。 你想要把转换后的 `epub` 文件输出到哪个目录, 比如, `output`。
+3. targetName. **必选**。 你想要生成的 `epub` 文件的名称, 比如, `HELLO`。
 4. coverPath. **可选**。 你想要生成的 `epub` 文件的封面的路径, 比如, `cover.jpg`。
 5. author. **可选**。 这个文件的作者, 比如, `Jerry`。
 
 所以，如果你使用如下的命令，
 
-`txt2epub --sourceFile=hello.txt --outputDir=output --outputName=HELLO`
+`txt2epub --sourceFile=hello.txt --targetFolder=output --targetName=HELLO`
 
 你就会看到你的 `epub` 的路径就会是这个 `./output/HELLO.epub`。
 
