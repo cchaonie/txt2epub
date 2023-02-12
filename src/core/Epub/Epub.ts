@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-this-alias */
-/* eslint-disable prefer-const */
 import path from 'path';
 import fs from 'fs';
 import { isEmpty, extend, each, map } from 'underscore';
@@ -98,18 +96,13 @@ export default class Epub {
   }
 
   async render() {
-    try {
-      await this.generateTempFile();
+    await this.generateTempFile();
 
-      if (this.options.cover) {
-        await this.makeCover();
-      }
-
-      await this.genEpub();
-    } catch (error) {
-      console.error('Something wrong happened: ', error);
-      throw error;
+    if (this.options.cover) {
+      await this.makeCover();
     }
+
+    await this.emitEpub();
   }
 
   generateTempFile() {
@@ -198,21 +191,12 @@ export default class Epub {
         renderTemplate(opfPath, this.options),
         renderTemplate(ncxTocPath, tableOfContents),
         renderTemplate(htmlTocPath, tableOfContents),
-      ]).then(
-        ([data1, data2, data3]) => {
-          fs.writeFileSync(
-            path.resolve(this.uuid, './OEBPS/content.opf'),
-            data1
-          );
-          fs.writeFileSync(path.resolve(this.uuid, './OEBPS/toc.ncx'), data2);
-          fs.writeFileSync(path.resolve(this.uuid, './OEBPS/toc.xhtml'), data3);
-          return resolve('SUCCESS');
-        },
-        (err) => {
-          console.error(err);
-          return err;
-        }
-      );
+      ]).then(([data1, data2, data3]) => {
+        fs.writeFileSync(path.resolve(this.uuid, './OEBPS/content.opf'), data1);
+        fs.writeFileSync(path.resolve(this.uuid, './OEBPS/toc.ncx'), data2);
+        fs.writeFileSync(path.resolve(this.uuid, './OEBPS/toc.xhtml'), data3);
+        return resolve('SUCCESS');
+      });
     });
   }
 
@@ -236,7 +220,7 @@ export default class Epub {
     });
   }
 
-  genEpub() {
+  emitEpub() {
     console.log('Generating Epub Files...');
     return new Promise((resolve, reject) => {
       const cwd = this.uuid;
