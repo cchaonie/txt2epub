@@ -35,16 +35,17 @@ import { generate } from 'txt2epub';
 
 ### Options
 
-To transform a txt file into an epub file, you need to specify 5 parameters:
+To transform a txt file into an epub file, you need to specify 6 parameters:
 
 1. `sourceFile`. **Required**. The path to your txt file, for example, `hello.txt`.
-2. `outputName`. **Required**. The directory you want to save your output epub file, for example, `./output`.
-3. `outputDir`. **Required**. This will be used as the _title_ of your epub file, for example, `HELLO`.
-4. `coverPath`. **Optional**. This is the path to your cover image, for example, `./cover.jpg`.
-5. `author`. **Optional**. The author of the book, for example, `Jerry`.
+2. `outputDir`. **Required**. This directory name for your output epub file, for example, `output`.
+3. `title`. **Required**. This will be used as the _title_ of your epub file, for example, `HELLO`.
+4. `outputName`. **Optional**. The directory you want to save your output epub file, for example, `HELLO`. The default value is the same as `title`.
+5. `coverPath`. **Optional**. This is the path to your cover image, for example, `./cover.jpg`.
+6. `author`. **Optional**. The author of the book, for example, `Jerry`.
 
 So, when you run
 
-`txt2epub --sourceFile=hello.txt --outputDir=output --outputName=HELLO`
+`txt2epub --sourceFile=hello.txt --outputDir=output --title=HELLO`
 
 You will see your epub file in `./output/HELLO.epub`.

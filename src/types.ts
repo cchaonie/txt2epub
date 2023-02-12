@@ -1,7 +1,8 @@
 export interface GenerateOptions {
   sourceFile: string;
-  outputName: string;
+  title: string;
   outputDir: string;
+  outputName?: string;
   coverPath?: string;
   author?: string;
 }

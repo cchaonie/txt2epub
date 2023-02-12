@@ -19,6 +19,7 @@ async function generate({
   outputDir,
   coverPath,
   author,
+  title,
 }: GenerateOptions) {
   const fileContentBuffer = await fs.readFile(sourceFile);
 
@@ -37,9 +38,10 @@ async function generate({
   await generateEpub({
     outputDir: outputDir,
     content: epubPages,
-    title: outputName,
+    title,
     coverPath,
     author,
+    outputName: outputName || title,
   });
 }
 

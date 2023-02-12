@@ -38,7 +38,7 @@ export default class Epub {
     this.options.docHeader = `<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="${this.options.lang}">`;
 
     if (isEmpty(this.options.author)) {
-      this.options.author = ['anonymous'];
+      this.options.author = 'anonymous';
     }
 
     if (!this.options.tempDir) {

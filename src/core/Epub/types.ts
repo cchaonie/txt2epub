@@ -11,7 +11,7 @@ export interface Options {
   output: string;
   title: string;
   lang?: string;
-  author?: string[];
+  author?: string;
   content: EpubPage[];
   cover?: string;
   fonts?: string[];

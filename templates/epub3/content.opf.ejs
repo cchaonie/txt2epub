@@ -16,11 +16,11 @@
         <meta property="dcterms:identifier" id="meta-identifier">BookId</meta>
         <dc:title><%= title %></dc:title>
         <meta property="dcterms:title" id="meta-title"><%= title %></meta>
-        <dc:language><%= lang || "en" %></dc:language>
-        <meta property="dcterms:language" id="meta-language"><%= lang || "en" %></meta>
+        <dc:language><%= lang || "zh" %></dc:language>
+        <meta property="dcterms:language" id="meta-language"><%= lang || "zh" %></meta>
         <meta property="dcterms:modified"><%= (new Date()).toISOString().split(".")[0]+ "Z" %></meta>
-        <dc:creator id="creator"><%= author.length ? author.join(",") : author %></dc:creator>
-        <meta refines="#creator" property="file-as"><%= author.length ? author.join(",") : author %></meta>
+        <dc:creator id="creator"><%= author %></dc:creator>
+        <meta refines="#creator" property="file-as"><%= author %></meta>
         <meta property="dcterms:publisher"><%= publisher || "anonymous" %></meta>
         <dc:publisher><%= publisher || "anonymous" %></dc:publisher>
         <% var date = new Date(); var year = date.getFullYear(); var month = date.getMonth() + 1; var day = date.getDate(); var stringDate = "" + year + "-" + month + "-" + day; %>

@@ -8,6 +8,7 @@ export default async function generateEpub({
   content,
   outputDir,
   coverPath,
+  outputName,
 }: GenerateEpubOptions) {
   const options = {
     title,
@@ -15,9 +16,9 @@ export default async function generateEpub({
     cover: coverPath,
     tocTitle: title,
     appendChapterTitles: false,
-    author: author ? [author] : undefined,
+    author,
     content,
-    output: `${outputDir}/${title}.epub`,
+    output: `${outputDir}/${outputName}.epub`,
     publisher: '',
   };
 

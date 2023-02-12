@@ -12,4 +12,5 @@ export type GenerateEpubOptions = Omit<OutputOptions, 'content'> & {
   content: EpubPage[];
   author?: string;
   coverPath?: string;
+  outputName: string;
 };

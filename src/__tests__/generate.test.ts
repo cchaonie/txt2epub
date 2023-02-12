@@ -31,6 +31,7 @@ describe('generate', () => {
       sourceFile: './hello.txt',
       outputDir: 'output',
       outputName: 'HELLO',
+      title: 'HELLO',
     };
 
     await generate(defaultOptions);
@@ -65,6 +66,8 @@ describe('generate', () => {
       ],
       outputDir: 'output',
       title: 'HELLO',
+      coverPath: undefined,
+      outputName: 'HELLO',
     });
   });
 });
