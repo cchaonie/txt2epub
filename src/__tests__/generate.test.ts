@@ -28,7 +28,7 @@ describe('generate', () => {
     (iconv.decode as jest.Mock).mockReturnValue(fileContent);
 
     const defaultOptions = {
-      inputFilePath: './hello.txt',
+      sourceFile: './hello.txt',
       outputDir: 'output',
       outputName: 'HELLO',
     };

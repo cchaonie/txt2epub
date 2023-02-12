@@ -1,5 +1,5 @@
 export interface GenerateOptions {
-  inputFilePath: string;
+  sourceFile: string;
   outputName: string;
   outputDir: string;
   coverPath?: string;

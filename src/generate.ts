@@ -14,15 +14,15 @@ async function createFolder(folderPath: string) {
 }
 
 async function generate({
-  inputFilePath,
+  sourceFile,
   outputName,
   outputDir,
   coverPath,
   author,
 }: GenerateOptions) {
-  const fileContentBuffer = await fs.readFile(inputFilePath);
+  const fileContentBuffer = await fs.readFile(sourceFile);
 
-  const encoding = await chardet.detectFile(inputFilePath);
+  const encoding = await chardet.detectFile(sourceFile);
 
   const fileContent = iconv.decode(fileContentBuffer, encoding);
 

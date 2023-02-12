@@ -4,16 +4,16 @@ import minimist from 'minimist';
 
 import generate from './generate';
 
-const { sourceFile, targetFolder, targetName, coverPath, author } = minimist(
+const { sourceFile, outputDir, outputName, coverPath, author } = minimist(
   process.argv.slice(2)
 );
 
 const cwd = process.cwd();
 
 generate({
-  inputFilePath: path.resolve(cwd, sourceFile),
-  outputName: targetName,
-  outputDir: path.resolve(cwd, targetFolder),
+  sourceFile: path.resolve(cwd, sourceFile),
+  outputName,
+  outputDir: path.resolve(cwd, outputDir),
   coverPath,
   author,
 })
