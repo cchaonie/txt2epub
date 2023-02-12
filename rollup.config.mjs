@@ -37,8 +37,16 @@ export default [
     ...shared,
     input: 'src/index.ts',
     output: {
-      file: 'lib/index.js',
+      file: 'lib/cjs/index.cjs',
       format: 'cjs',
+    },
+  },
+  {
+    ...shared,
+    input: 'src/index.ts',
+    output: {
+      file: 'lib/es/index.mjs',
+      format: 'es',
     },
   },
   {
