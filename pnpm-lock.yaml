@@ -27,7 +27,7 @@ specifiers:
   lint-staged: ^13.1.0
   mime: ^3.0.0
   minimist: ^1.2.8
-  nanoid: ^4.0.0
+  nanoid: '3'
   prettier: 2.8.1
   rimraf: ^3.0.2
   rollup: ^3.10.0
@@ -48,7 +48,7 @@ dependencies:
   iconv-lite: 0.6.3
   mime: 3.0.0
   minimist: 1.2.8
-  nanoid: 4.0.0
+  nanoid: 3.3.4
   rimraf: 3.0.2
   underscore: 1.13.6
 
@@ -3992,12 +3992,12 @@ packages:
         integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==,
       }
 
-  /nanoid/4.0.0:
+  /nanoid/3.3.4:
     resolution:
       {
-        integrity: sha512-IgBP8piMxe/gf73RTQx7hmnhwz0aaEXYakvqZyE302IXW3HyVNhdNGC+O2MwMAVhLEnvXlvKtGbtJf6wvHihCg==,
+        integrity: sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==,
       }
-    engines: { node: ^14 || ^16 || >=18 }
+    engines: { node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1 }
     hasBin: true
     dev: false
 

@@ -39,10 +39,9 @@
     "iconv-lite": "^0.6.3",
     "mime": "^3.0.0",
     "minimist": "^1.2.8",
-    "nanoid": "^4.0.0",
+    "nanoid": "3",
     "rimraf": "^3.0.2",
     "underscore": "^1.13.6"
-
   },
   "devDependencies": {
     "@babel/core": "^7.8",
