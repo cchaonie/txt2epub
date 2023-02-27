@@ -31,7 +31,6 @@
   "dependencies": {
     "archiver": "^5.3.1",
     "chardet": "^1.5.1",
-    "cross-env": "^7.0.3",
     "ejs": "^3.1.8",
     "entities": "^4.4.0",
     "eslint": "^8.29.0",
@@ -56,6 +55,7 @@
     "@types/underscore": "^1.11.4",
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
+    "cross-env": "^7.0.3",
     "eslint-config-prettier": "^8.5.0",
     "husky": "^8.0.2",
     "jest": "^29",

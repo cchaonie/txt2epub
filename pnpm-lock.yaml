@@ -40,7 +40,6 @@ specifiers:
 dependencies:
   archiver: 5.3.1
   chardet: 1.5.1
-  cross-env: 7.0.3
   ejs: 3.1.8
   entities: 4.4.0
   eslint: 8.31.0
@@ -65,6 +64,7 @@ devDependencies:
   '@types/underscore': 1.11.4
   '@typescript-eslint/eslint-plugin': 5.48.0_3pbt7ydm7bwozvllq3xvnbepre
   '@typescript-eslint/parser': 5.48.0_2dzgwy5zqpbqnlebe4vtikzq4i
+  cross-env: 7.0.3
   eslint-config-prettier: 8.6.0_eslint@8.31.0
   husky: 8.0.3
   jest: 29.3.1_sgupjgtkb76w4hsvieap2xky7i
@@ -2083,7 +2083,7 @@ packages:
     hasBin: true
     dependencies:
       cross-spawn: 7.0.3
-    dev: false
+    dev: true
 
   /cross-spawn/7.0.3:
     resolution:
