@@ -5,6 +5,7 @@
   "description": "A simple tool to convert txt file to epub file",
   "main": "lib/index.cjs",
   "module": "lib/index.mjs",
+  "types": "lib/index.d.ts",
   "repository": "https://github.com/cchaonie/txt2epub.git",
   "scripts": {
     "build": "rimraf ./lib && rollup -c rollup.config.mjs",
